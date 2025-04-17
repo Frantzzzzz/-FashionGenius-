@@ -3,7 +3,7 @@
 > **Your 24×7 AI stylist** – virtual try‑on, digital wardrobe & chat‑based outfit recommendations in one lightweight package.
 
 <p align="center">
-  <img src="docs/banner.png" alt="banner" width="700">
+  <img src="./WechatIMG2091.jpg" alt="banner" width="700">
 </p>
 
 ---
