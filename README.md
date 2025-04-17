@@ -1,6 +1,6 @@
 # FashionGenius · 衣智未来 👗✨
 
-> **Your 24×7 AI stylist** – virtual try‑on, digital wardrobe & chat‑based outfit recommendations in one lightweight package.
+> **Your 24×7 AI stylist** 虚拟试穿、数字化衣橱与交互式穿搭推荐，为您提供智能的时尚搭配体验～
 
 <p align="center">
   <img src="./WechatIMG2091.jpg" alt="banner" width="700">
