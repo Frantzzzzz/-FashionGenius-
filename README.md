@@ -3,7 +3,7 @@
 > 用技术重新定义时尚：虚拟试衣、智能搭配、数字衣橱，一键搞定 OOTD（今日穿搭）！
 
 <p align="center">
-  <img src="./WechatIMG2091.jpg" alt="banner" width="700">
+  <img src="./front.jpg" alt="banner" width="700">
 </p>
 
 ---
