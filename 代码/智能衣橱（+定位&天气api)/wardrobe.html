@@ -1,0 +1,2931 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智能衣橱 - 穿搭魔法师</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <!-- <link rel="stylesheet" type="text/css" href="wardrobe_styles.css"> -->
+    <style>
+        :root {
+            --primary-color: #6C63FF;
+            --secondary-color: #4D44DB;
+            --warm-color: #FF7B54;
+            --cool-color: #4B9CD3;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .wardrobe-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(108, 99, 255, 0.05);
+        }
+
+        .clothing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .clothing-card {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .clothing-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .clothing-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .clothing-tags {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            padding: 0.5rem;
+            color: white;
+            font-size: 0.7rem;
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.15rem 0.4rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            margin-right: 0.2rem;
+            margin-bottom: 0.2rem;
+            line-height: 1.2;
+        }
+
+        .tag.warm {
+            background: var(--warm-color);
+        }
+
+        .tag.cool {
+            background: var(--cool-color);
+        }
+
+        .outfit-preview {
+            background: #f0f2f5;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .ai-analysis-section {
+            border: 1px solid #eee;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 10px;
+            background: #f9f9ff;
+        }
+
+        .analysis-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .analysis-row {
+            display: flex;
+            margin-bottom: 0.8rem;
+            align-items: baseline;
+        }
+
+        .analysis-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            min-width: 100px;
+            display: inline-block;
+        }
+
+        .analysis-value {
+            flex: 1;
+            background: #f8f9fa;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .ai-suggest-btn {
+            background: linear-gradient(135deg, #6C63FF, #4D44DB);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 50px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 裁剪模态框样式 */
+        .modal-cropper .modal-dialog {
+            max-width: 800px;
+        }
+
+        .modal-cropper .modal-body {
+            padding: 0;
+        }
+
+        .modal-cropper .cropper-container {
+            height: 500px;
+            width: 100%;
+        }
+
+        /* 卡片操作按钮样式 */
+        .card-actions .btn {
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+
+        .card-actions .btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        /* 新增样式 - 全屏加载覆盖层 */
+        .fullscreen-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fashion-ai-thinking {
+            text-align: center;
+            max-width: 400px;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .ai-robot {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .scanning-line {
+            height: 3px;
+            background: linear-gradient(to right, transparent, #6C63FF, transparent);
+            width: 100%;
+            margin: 1.5rem 0;
+            position: relative;
+            overflow: hidden;
+            border-radius: 3px;
+        }
+
+        .scanning-line:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(to right, transparent, white, transparent);
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 1.5rem;
+            font-style: italic;
+        }
+
+        .progress-text:after {
+            content: '...';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .fashion-tips {
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: #888;
+            border-top: 1px dashed #eee;
+            padding-top: 1rem;
+        }
+
+        .fashion-tips i {
+            color: var(--primary-color);
+            margin-right: 0.5rem;
+        }
+
+        /* 新增整理功能样式 */
+        .organize-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .organize-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .organize-option {
+            flex: 1;
+            min-width: 200px;
+            cursor: pointer;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .organize-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(108, 99, 255, 0.05);
+        }
+
+        .organize-option i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .organize-option.active {
+            border-color: var(--primary-color);
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .category-section {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .category-section.active {
+            display: block;
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .category-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .category-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .color-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .color-box.active {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        /* 季节分类样式 */
+        .season-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .season-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: #eee;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .season-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        .weather-details {
+            display: flex;
+            gap: 1rem; /* 设置间距 */
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .weather-widget{
+            display:flex;                 /* 保持水平排列 */
+            align-items:center;
+            gap:1rem;                     /* ← 与图标留出统一间距 */
+        }
+
+        .weather-icon{
+            font-size:2.5rem;
+            line-height:1;
+        }
+
+        .weather-info{                    /* 新包裹层，文字区 */
+            text-align:left;              /* ← 全部左对齐 */
+        }
+
+        .weather-main {
+            display: flex;
+            align-items: center;
+        }
+
+        .weather-temp {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .occasion-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .occasion-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .occasion-btn:hover, .occasion-btn.active {
+            border-color: var(--primary-color);
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .occasion-btn i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .outfit-item {
+            position: relative;
+            margin: 0 0.5rem 1rem;
+            text-align: center;
+        }
+
+        .outfit-item img {
+            width: 100px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .outfit-item:hover img {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .outfit-tags {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            padding: 0.3rem;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 0.7rem;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .outfit-tag {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.1rem 0.3rem;
+            border-radius: 10px;
+            font-size: 0.6rem;
+            margin-right: 0.2rem;
+        }
+        /* 添加搭配推荐加载动画 */
+        .outfit-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .outfit-spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 0.25rem solid rgba(108, 99, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .outfit-loading-text {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .outfit-loading-text:after {
+            content: '...';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        .outfit-tips {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        /* 拍照预览容器 */
+        .camera-preview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1050;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .camera-preview video {
+            max-width: 100%;
+            max-height: 80vh;
+            background: #000;
+        }
+
+        .camera-preview canvas {
+            display: none;
+        }
+
+        .camera-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .camera-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .capture-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .cancel-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+        }
+
+        .flip-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+        }
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .clothing-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .organize-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wardrobe-container">
+        <h1 class="text-center mb-4"><i class="fas fa-hat-wizard me-2"></i> AI衣橱魔法师</h1>
+
+        <!-- 上传区域 -->
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: var(--primary-color);"></i>
+            <h4>拖放服饰图片或点击上传</h4>
+            <p class="text-muted">支持JPG/JPEG/PNG格式，AI将自动分析服饰特征</p>
+            
+            <div class="upload-options d-flex justify-content-center gap-2 mt-3">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-folder-open me-2"></i>选择文件
+                </button>
+                <button class="btn btn-success" id="cameraBtn">
+                    <i class="fas fa-camera me-2"></i>拍照上传
+                </button>
+            </div>
+            
+            <input type="file" id="fileInput" class="d-none" accept="image/*" multiple>
+            <input type="file" id="cameraInput" class="d-none" accept="image/*" capture="environment">
+        </div>
+
+        <!-- 智能整理区域 -->
+        <div class="organize-section">
+            <h4><i class="fas fa-magic me-2"></i>智能整理衣橱</h4>
+            <p class="text-muted">选择一种整理方式，AI将自动分类您的服饰</p>
+            
+            <div class="organize-options">
+                <div class="organize-option" onclick="organizeByType()">
+                    <i class="fas fa-tshirt"></i>
+                    <h5>按类型分类</h5>
+                    <p class="text-muted">上装/下装/鞋子/配饰</p>
+                </div>
+                
+                <div class="organize-option" onclick="organizeByColor()">
+                    <i class="fas fa-palette"></i>
+                    <h5>按颜色分类</h5>
+                    <p class="text-muted">暖色系/冷色系</p>
+                </div>
+                
+                <div class="organize-option" onclick="organizeBySeason()">
+                    <i class="fas fa-snowflake"></i>
+                    <h5>按季节分类</h5>
+                    <p class="text-muted">春秋/夏/秋冬</p>
+                </div>
+            </div>
+            
+            <!-- 按类型分类视图 -->
+            <div id="typeView" class="category-section">
+                <div class="category-title">
+                    <div class="category-icon">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <div class="category-name">上装</div>
+                </div>
+                <div class="clothing-grid" id="topsGrid"></div>
+                
+                <div class="category-title mt-4">
+                    <div class="category-icon">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <div class="category-name">下装</div>
+                </div>
+                <div class="clothing-grid" id="bottomsGrid"></div>
+                
+                <div class="category-title mt-4">
+                    <div class="category-icon">
+                        <i class="fas fa-shoe-prints"></i>
+                    </div>
+                    <div class="category-name">鞋子</div>
+                </div>
+                <div class="clothing-grid" id="shoesGrid"></div>
+                
+                <div class="category-title mt-4">
+                    <div class="category-icon">
+                        <i class="fas fa-umbrella-beach"></i>
+                    </div>
+                    <div class="category-name">配饰</div>
+                </div>
+                <div class="clothing-grid" id="accessoriesGrid"></div>
+            </div>
+            
+            <!-- 按颜色分类视图 -->
+            <div id="colorView" class="category-section">
+                <div class="d-flex align-items-center mb-3">
+                    <h5 class="mb-0 me-3">筛选颜色:</h5>
+                    <div class="color-palette" id="colorFilter">
+                        <div class="color-box" style="background: #FF6B6B;" title="红色" onclick="filterByColor('red')"></div>
+                        <div class="color-box" style="background: #FFA07A;" title="橙色" onclick="filterByColor('orange')"></div>
+                        <div class="color-box" style="background: #FFD166;" title="黄色" onclick="filterByColor('yellow')"></div>
+                        <div class="color-box" style="background: #06D6A0;" title="绿色" onclick="filterByColor('green')"></div>
+                        <div class="color-box" style="background: #118AB2;" title="蓝色" onclick="filterByColor('blue')"></div>
+                        <div class="color-box" style="background: #6A4C93;" title="紫色" onclick="filterByColor('purple')"></div>
+                        <div class="color-box" style="background: #000000;" title="黑色" onclick="filterByColor('black')"></div>
+                        <div class="color-box" style="background: #FFFFFF; border: 1px solid #ddd;" title="白色" onclick="filterByColor('white')"></div>
+                        <div class="color-box" style="background: #A5A5A5;" title="灰色" onclick="filterByColor('gray')"></div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="category-title">
+                            <div class="category-icon" style="background: var(--warm-color);">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="category-name">暖色系</div>
+                        </div>
+                        <div class="clothing-grid" id="warmColorGrid"></div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="category-title">
+                            <div class="category-icon" style="background: var(--cool-color);">
+                                <i class="fas fa-snowflake"></i>
+                            </div>
+                            <div class="category-name">冷色系</div>
+                        </div>
+                        <div class="clothing-grid" id="coolColorGrid"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 按季节分类视图 -->
+            <div id="seasonView" class="category-section">
+                <div class="season-tabs">
+                    <div class="season-tab active" onclick="filterBySeason('all')">全部季节</div>
+                    <div class="season-tab" onclick="filterBySeason('springAutumn')">春秋</div>
+                    <div class="season-tab" onclick="filterBySeason('summer')">夏季</div>
+                    <div class="season-tab" onclick="filterBySeason('winter')">冬季</div>
+                </div>
+                
+                <div class="clothing-grid" id="seasonGrid"></div>
+            </div>
+        </div>
+
+        <!-- AI分析结果区域 -->
+        <div class="ai-analysis-section">
+            <div id="analysisResults" class="mt-3">
+                <p class="text-muted">上传图片后，AI将自动分析服饰特征</p>
+            </div>
+        </div>
+
+        <!-- 衣橱展示 -->
+        <div class="clothing-grid" id="wardrobeGrid">
+            <!-- 动态生成的服饰卡片 -->
+        </div>
+
+        <!-- 智能搭配推荐 -->
+        <div class="outfit-preview">
+            <h4><i class="fas fa-star me-2"></i>智能穿搭推荐</h4>
+            
+            <!-- 新增天气和场合选择器 -->
+            <div class="weather-widget d-flex align-items-center mb-3" id="weatherWidget">
+                <div class="weather-icon">
+                    <i class="fas fa-cloud-sun"></i>
+                </div>
+                <div>
+                    <h5 class="mb-1" id="weatherLocation">正在获取天气...</h5>
+                    <div class="d-flex">
+                        <div id="weatherTemp" class="me-2">--°C</div>
+                        <div id="weatherCondition">--</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="occasion-selector" id="occasionSelector">
+                <div class="occasion-btn active" data-occasion="daily" onclick="selectOccasion(this, 'daily')">
+                    <i class="fas fa-tshirt"></i> 日常
+                </div>
+                <div class="occasion-btn" data-occasion="work" onclick="selectOccasion(this, 'work')">
+                    <i class="fas fa-briefcase"></i> 工作
+                </div>
+                <div class="occasion-btn" data-occasion="date" onclick="selectOccasion(this, 'date')">
+                    <i class="fas fa-heart"></i> 约会
+                </div>
+                <div class="occasion-btn" data-occasion="sport" onclick="selectOccasion(this, 'sport')">
+                    <i class="fas fa-running"></i> 运动
+                </div>
+                <div class="occasion-btn" data-occasion="formal" onclick="selectOccasion(this, 'formal')">
+                    <i class="fas fa-user-tie"></i> 正式
+                </div>
+            </div>
+            
+            <div id="outfitSuggestion" class="text-center py-2">
+                <p class="text-muted">正在生成搭配建议...</p>
+            </div>
+            
+            <div class="text-center mt-2">
+                <!-- <button class="btn btn-sm btn-outline-primary" onclick="updateOutfitSuggestion()">
+                    <i class="fas fa-sync-alt me-1"></i>换一套
+                </button> -->
+                <!-- <button class="btn btn-sm btn-outline-success ms-2" onclick="saveFavoriteOutfit()">
+                    <i class="fas fa-heart me-1"></i>收藏搭配
+                </button> -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片裁剪模态框 -->
+    <div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">裁剪服饰图片</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img id="cropperImage" src="" style="max-width: 100%;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="cropBtn">完成裁剪</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑服饰模态框 -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">编辑服饰信息</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm" class="edit-form">
+                        <div class="form-group mb-3">
+                            <label for="editType" class="form-label">类型</label>
+                            <input type="text" class="form-control" id="editType">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="editColor" class="form-label">颜色</label>
+                            <input type="text" class="form-control" id="editColor">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="editStyle" class="form-label">风格</label>
+                            <input type="text" class="form-control" id="editStyle">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="editSeason" class="form-label">季节</label>
+                            <input type="text" class="form-control" id="editSeason">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="editMaterial" class="form-label">材质</label>
+                            <input type="text" class="form-control" id="editMaterial">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="editFit" class="form-label">版型</label>
+                            <input type="text" class="form-control" id="editFit">
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="editFavorite">
+                            <label class="form-check-label" for="editFavorite">设为收藏</label>
+                        </div>
+                        <input type="hidden" id="editId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-info" id="reanalyzeBtn">
+                        <i class="fas fa-redo me-1"></i>重新分析
+                    </button>
+                    <button type="button" class="btn btn-primary" id="saveEditBtn">保存更改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全屏加载层 -->
+    <div id="fullscreenLoading" class="fullscreen-loading" style="display: none;">
+        <div class="fashion-ai-thinking">
+            <div class="ai-robot">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h4>AI时尚顾问正在工作</h4>
+            <div class="scanning-line"></div>
+            <p>正在分析: <strong id="currentClothingName"></strong></p>
+            <div class="progress-text">请稍候，我们的AI正在施展时尚魔法</div>
+            
+            <div class="fashion-tips">
+                <div><i class="fas fa-lightbulb"></i> 小贴士: 分析时间取决于服饰复杂度和网络速度</div>
+                <div><i class="fas fa-lightbulb"></i> 您可以先去喝杯咖啡，马上就好~</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        // 模拟数据库
+        let wardrobeDB = JSON.parse(localStorage.getItem('wardrobeDB')) || {
+            items: [],
+            outfits: []
+        };
+
+        // DOM元素
+        const fileInput = document.getElementById('fileInput');
+        const wardrobeGrid = document.getElementById('wardrobeGrid');
+        const analysisResults = document.getElementById('analysisResults');
+        const cropModal = new bootstrap.Modal(document.getElementById('cropModal'));
+        const cropperImage = document.getElementById('cropperImage');
+        const cropBtn = document.getElementById('cropBtn');
+        const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+        const editForm = document.getElementById('editForm');
+        const saveEditBtn = document.getElementById('saveEditBtn');
+        const fullscreenLoading = document.getElementById('fullscreenLoading');
+        const currentClothingName = document.getElementById('currentClothingName');
+        
+        // 分类视图元素
+        const typeView = document.getElementById('typeView');
+        const topsGrid = document.getElementById('topsGrid');
+        const bottomsGrid = document.getElementById('bottomsGrid');
+        const shoesGrid = document.getElementById('shoesGrid');
+        const accessoriesGrid = document.getElementById('accessoriesGrid');
+        
+        const colorView = document.getElementById('colorView');
+        const warmColorGrid = document.getElementById('warmColorGrid');
+        const coolColorGrid = document.getElementById('coolColorGrid');
+        
+        const seasonView = document.getElementById('seasonView');
+        const seasonGrid = document.getElementById('seasonGrid');
+        
+        // 全局变量
+        let cropper = null;
+        let currentEditingItem = null;
+        let currentFileData = null;
+        let currentUploadFileId = null;
+        let currentOrganizeMode = null; // 'type', 'color', 'season'
+        let cameraStream = null;
+        let usingFrontCamera = false;
+
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderWardrobe();
+            setupDragAndDrop();
+            setupFileInput();
+            setupCropper();
+            setupEditForm();
+            setupReanalyzeButton();
+            generateOutfitSuggestions();
+            initWeatherAndOccasion();
+            // 设置拍照按钮事件
+            document.getElementById('cameraBtn').addEventListener('click', startCamera);
+            document.getElementById('cameraInput').addEventListener('change', handleCameraFile);
+        });
+
+        // 设置拖放功能
+        function setupDragAndDrop() {
+            const uploadArea = document.getElementById('uploadArea');
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'var(--primary-color)';
+                uploadArea.style.backgroundColor = 'rgba(108, 99, 255, 0.1)';
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#ccc';
+                uploadArea.style.backgroundColor = '';
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#ccc';
+                uploadArea.style.backgroundColor = '';
+
+                if (e.dataTransfer.files.length > 0) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            });
+        }
+
+        // 设置文件输入
+        function setupFileInput() {
+            fileInput.addEventListener('change', (e) => {
+                if (fileInput.files.length > 0) {
+                    handleFiles(fileInput.files);
+                }
+            });
+        }
+
+        // 设置裁剪器
+        function setupCropper() {
+            cropBtn.addEventListener('click', async () => {
+                try {
+                    const croppedCanvas = cropper.getCroppedCanvas();
+                    const croppedImageData = croppedCanvas.toDataURL('image/jpeg', 0.8);
+                    
+                    // 显示全屏加载层
+                    currentClothingName.textContent = currentFileData.name || '您的服饰';
+                    fullscreenLoading.style.display = 'flex';
+                    
+                    // 关闭裁剪模态框
+                    cropModal.hide();
+                    
+                    // 裁剪完成后处理
+                    await onCropComplete(croppedImageData, currentFileData.name);
+                    
+                } catch (error) {
+                    console.error('裁剪处理失败:', error);
+                    analysisResults.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            处理失败: ${error.message || '未知错误'}
+                        </div>
+                    `;
+                } finally {
+                    if (cropper) {
+                        cropper.destroy();
+                        cropper = null;
+                    }
+                    // 分析完成后会自动隐藏加载层
+                }
+            });
+        }
+
+        // 设置编辑表单
+        function setupEditForm() {
+            saveEditBtn.addEventListener('click', () => {
+                if (!currentEditingItem) return;
+                
+                const item = wardrobeDB.items.find(i => i.id === currentEditingItem);
+                if (item) {
+                    // 更新物品信息
+                    item.type = document.getElementById('editType').value;
+                    item.color = document.getElementById('editColor').value;
+                    item.style = document.getElementById('editStyle').value;
+                    item.season = document.getElementById('editSeason').value.split(/[,，、]/).map(s => s.trim());
+                    item.material = document.getElementById('editMaterial').value;
+                    item.fit = document.getElementById('editFit').value;
+                    item.favorite = document.getElementById('editFavorite').checked;
+                    
+                    saveToDB();
+                    renderWardrobe();
+                    if (currentOrganizeMode) {
+                        renderOrganizedView(currentOrganizeMode);
+                    }
+                    editModal.hide();
+                }
+            });
+        }
+
+        // 设置重新分析按钮
+        function setupReanalyzeButton() {
+            document.getElementById('reanalyzeBtn').addEventListener('click', async () => {
+                if (!currentEditingItem) return;
+                
+                const item = wardrobeDB.items.find(i => i.id === currentEditingItem);
+                if (!item) return;
+                
+                try {
+                    // 显示加载状态
+                    const reanalyzeBtn = document.getElementById('reanalyzeBtn');
+                    const originalHtml = reanalyzeBtn.innerHTML;
+                    reanalyzeBtn.innerHTML = '<div class="loading-spinner"></div> 分析中...';
+                    reanalyzeBtn.disabled = true;
+                    
+                    // 显示全屏加载层
+                    currentClothingName.textContent = item.name || '您的服饰';
+                    fullscreenLoading.style.display = 'flex';
+                    
+                    // 关闭编辑模态框
+                    editModal.hide();
+                    
+                    // 1. 将图片重新上传到Dify获取新的file_id
+                    const blob = await fetch(item.imageUrl).then(r => r.blob());
+                    const file = new File([blob], item.name + '.jpg', { type: 'image/jpeg' });
+                    const newFileId = await uploadToDify(file);
+                    
+                    // 2. 调用分析接口
+                    const newAnalysis = await analyzeClothing(newFileId);
+                    
+                    // 3. 更新物品信息
+                    updateItemFromAnalysis(item, newAnalysis);
+                    item.analysisResult = newAnalysis;
+                    
+                    // 4. 保存到数据库
+                    saveToDB();
+                    
+                    // 5. 显示分析结果
+                    displayAnalysisResults(newAnalysis);
+                    
+                    // 显示成功提示
+                    showToast('重新分析成功！', 'success');
+                    
+                } catch (error) {
+                    console.error('重新分析失败:', error);
+                    showToast('重新分析失败: ' + (error.message || '未知错误'), 'danger');
+                } finally {
+                    // 隐藏全屏加载层
+                    fullscreenLoading.style.display = 'none';
+                    
+                    const reanalyzeBtn = document.getElementById('reanalyzeBtn');
+                    reanalyzeBtn.innerHTML = originalHtml;
+                    reanalyzeBtn.disabled = false;
+                }
+            });
+        }
+
+        // 拍照功能
+        function startCamera() {
+            // 创建拍照预览界面
+            const previewHTML = `
+                <div class="camera-preview">
+                    <video autoplay playsinline></video>
+                    <canvas></canvas>
+                    <div class="camera-controls">
+                        <button class="btn flip-btn" onclick="flipCamera()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="btn capture-btn" onclick="capturePhoto()">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                        <button class="btn cancel-btn" onclick="stopCamera()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', previewHTML);
+            
+            // 获取视频流
+            const constraints = {
+                video: {
+                    facingMode: usingFrontCamera ? "user" : "environment",
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            };
+            
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(function(stream) {
+                    cameraStream = stream;
+                    const video = document.querySelector('.camera-preview video');
+                    video.srcObject = stream;
+                })
+                .catch(function(err) {
+                    console.error("摄像头访问错误:", err);
+                    alert("无法访问摄像头: " + err.message);
+                    stopCamera();
+                    
+                    // 如果直接访问摄像头失败，回退到使用文件输入
+                    document.getElementById('cameraInput').click();
+                });
+        }
+
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+            
+            const preview = document.querySelector('.camera-preview');
+            if (preview) {
+                preview.remove();
+            }
+        }
+
+        function flipCamera() {
+            usingFrontCamera = !usingFrontCamera;
+            stopCamera();
+            startCamera();
+        }
+
+        function capturePhoto() {
+            const video = document.querySelector('.camera-preview video');
+            const canvas = document.querySelector('.camera-preview canvas');
+            
+            // 设置canvas尺寸与视频相同
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // 绘制当前视频帧到canvas
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // 将canvas转为Blob
+            canvas.toBlob(function(blob) {
+                stopCamera();
+                
+                // 创建文件对象
+                const file = new File([blob], 'photo_' + new Date().getTime() + '.jpg', {
+                    type: 'image/jpeg',
+                    lastModified: Date.now()
+                });
+                
+                // 处理拍照结果
+                handleFiles([file]);
+            }, 'image/jpeg', 0.9);
+        }
+
+        // 处理通过<input type="file" capture>直接拍照的文件
+        function handleCameraFile(e) {
+            if (e.target.files && e.target.files.length > 0) {
+                handleFiles(e.target.files);
+                e.target.value = ''; // 重置input，允许重复选择同一文件
+            }
+        }
+
+        // 处理上传的文件（包括拍照和普通上传）
+        async function handleFiles(files) {
+            const validFiles = Array.from(files).filter(file => 
+                file.type.startsWith('image/') && 
+                ['image/jpeg', 'image/png'].includes(file.type)
+            );
+
+            if (validFiles.length === 0) {
+                alert('请上传JPEG或PNG格式的图片');
+                return;
+            }
+
+            // 只处理第一张图片
+            const file = validFiles[0];
+            
+            try {
+                // 显示准备状态
+                analysisResults.innerHTML = `
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">加载中...</span>
+                        </div>
+                        <p class="mt-2">正在准备${file.name === 'photo.jpg' ? '拍照' : ''}图片...</p>
+                    </div>
+                `;
+                
+                // 1. 上传图片到Dify获取file_id
+                currentUploadFileId = await uploadToDify(file);
+                currentFileData = {
+                    data: URL.createObjectURL(file),
+                    name: file.name.replace(/\.[^/.]+$/, "") || '拍照图片'
+                };
+                
+                // 2. 显示裁剪界面
+                showCropperModal(currentFileData.data);
+                
+            } catch (error) {
+                console.error('上传失败:', error);
+                analysisResults.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${error.message || '图片上传失败'}
+                    </div>
+                `;
+            }
+        }
+        // 上传图片到Dify并获取file_id
+        async function uploadToDify(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const response = await fetch('http://localhost/v1/files/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer app-AfmCJdCHYYklhq264UWYOzHQ'
+                },
+                body: formData
+            });
+            
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                throw new Error(error.message || '图片上传失败');
+            }
+            
+            const result = await response.json();
+            return result.id; // 返回上传文件的ID
+        }
+
+        // 显示裁剪模态框
+        function showCropperModal(imageData) {
+            cropperImage.src = imageData;
+            cropModal.show();
+            
+            // 初始化裁剪器
+            cropModal._element.addEventListener('shown.bs.modal', function onShown() {
+                cropper = new Cropper(cropperImage, {
+                    aspectRatio: 1, // 正方形裁剪
+                    viewMode: 1,
+                    autoCropArea: 0.8,
+                    responsive: true,
+                    guides: true
+                });
+                cropModal._element.removeEventListener('shown.bs.modal', onShown);
+            });
+        }
+
+        // 裁剪完成后的处理
+        async function onCropComplete(croppedImageData, filename) {
+            try {
+                // 1. 添加衣物到本地衣橱
+                const newItem = {
+                    id: Date.now().toString(),
+                    imageUrl: croppedImageData,
+                    name: filename,
+                    type: '待分类',
+                    color: '待识别',
+                    style: '待识别',
+                    season: [],
+                    material: '待识别',
+                    fit: '待识别',
+                    favorite: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                wardrobeDB.items.push(newItem);
+                
+                // 2. 将裁剪后的图片转换为Blob上传到Dify
+                const blob = await fetch(croppedImageData).then(r => r.blob());
+                const file = new File([blob], filename + '.jpg', { type: 'image/jpeg' });
+                const newFileId = await uploadToDify(file);
+                
+                // 3. 调用Dify工作流分析服饰
+                const analysisResult = await analyzeClothing(newFileId);
+                newItem.analysisResult = analysisResult;
+                
+                // 4. 保存到数据库
+                saveToDB();
+                
+                // 5. 显示分析结果
+                displayAnalysisResults(analysisResult);
+                
+                // 6. 重新渲染衣橱
+                renderWardrobe();
+                
+            } catch (error) {
+                console.error('分析失败:', error);
+                showToast('分析失败: ' + (error.message || '未知错误'), 'danger');
+            } finally {
+                // 隐藏全屏加载层
+                fullscreenLoading.style.display = 'none';
+            }
+        }
+
+        // 调用Dify工作流 image_discription 分析服饰
+        async function analyzeClothing(fileId) {
+            const apiData = {
+                inputs: {},
+                query: "使用简体中文回复，严格按照格式输出：\n类型：<毛衣/夹克/连帽卫衣/圆领短袖/圆领长袖/高腰长裤/低腰短裙/连衣裙等>\n颜色：<服装颜色>\n风格：<休闲/正式/运动等>\n季节：<春季/夏季/秋季/冬季>\n材质：<如：棉质、羊毛、丝绸、涤纶等>\n版型：<如：A字型、修身、直筒、宽松、廓形等>",
+                response_mode: "blocking",
+                conversation_id: "",
+                user: "abc-123",
+                files: [{
+                    type: "image",
+                    transfer_method: "local_file",
+                    upload_file_id: fileId
+                }]
+            };
+
+            const response = await fetch('http://localhost/v1/chat-messages', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer app-AfmCJdCHYYklhq264UWYOzHQ',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(apiData)
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                throw new Error(error.message || '服饰分析请求失败');
+            }
+
+            return await response.json();
+        }
+
+        // 从分析结果更新物品信息
+        function updateItemFromAnalysis(item, analysisResult) {
+            const analysisText = analysisResult.answer || "";
+            
+            // 使用正则表达式从分析文本中提取信息
+            const extractInfo = (pattern) => {
+                const match = analysisText.match(pattern);
+                return match ? match[1].trim() : null;
+            };
+            
+            // 更新物品属性
+            item.type = extractInfo(/类型[:：]\s*([^\n<]+)/i) || item.type;
+            item.color = extractInfo(/颜色[:：]\s*([^\n<]+)/i) || item.color;
+            item.style = extractInfo(/风格[:：]\s*([^\n<]+)/i) || item.style;
+            item.material = extractInfo(/材质[:：]\s*([^\n<]+)/i) || item.material;
+            item.fit = extractInfo(/版型[:：]\s*([^\n<]+)/i) || item.fit;
+            
+            // 处理季节信息
+            const seasonMatch = analysisText.match(/季节[:：]\s*([^\n<]+)/i);
+            if (seasonMatch) {
+                item.season = seasonMatch[1].split(/[,，、\s\/]/)
+                    .map(s => s.trim())
+                    .filter(s => s && ['春季', '夏季', '秋季', '冬季'].includes(s));
+            }
+        }
+
+        // 美观地显示分析结果
+        function displayAnalysisResults(result) {
+            const analysisText = result.answer || "未识别到服饰信息";
+            
+            // 创建美观的展示卡片
+            analysisResults.innerHTML = `
+                <div class="analysis-card">
+                    <h6><i class="fas fa-tshirt me-2"></i>AI服饰分析报告</h6>
+                    <div class="analysis-details mt-3">
+                        ${formatAnalysisText(analysisText)}
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        <button class="btn btn-sm btn-primary" onclick="applyAnalysisResults()">
+                            <i class="fas fa-check me-1"></i>应用结果
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 格式化分析文本为HTML
+        function formatAnalysisText(text) {
+            // 将文本中的分类转换为美观的标签
+            return text.split('\n')
+                .filter(line => line.trim())
+                .map(line => {
+                    if (line.match(/[:：]/)) {
+                        const parts = line.split(/[:：]/);
+                        const label = parts[0].trim();
+                        const value = parts.slice(1).join(':').trim();
+                        return `
+                            <div class="analysis-row">
+                                <span class="analysis-label">${label}</span>
+                                <span class="analysis-value">${value}</span>
+                            </div>
+                        `;
+                    }
+                    return `<div class="analysis-line">${line}</div>`;
+                })
+                .join('');
+        }
+
+        // 应用分析结果
+        function applyAnalysisResults() {
+            const lastItem = wardrobeDB.items[wardrobeDB.items.length - 1];
+            if (lastItem && lastItem.analysisResult) {
+                updateItemFromAnalysis(lastItem, lastItem.analysisResult);
+                saveToDB();
+                renderWardrobe();
+                
+                // 显示成功提示
+                analysisResults.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        服饰分析结果已成功应用！
+                    </div>
+                `;
+            }
+        }
+
+        // 渲染衣橱
+        function renderWardrobe() {
+            wardrobeGrid.innerHTML = '';
+
+            if (wardrobeDB.items.length === 0) {
+                wardrobeGrid.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-tshirt fa-4x mb-3" style="color: #ddd;"></i>
+                        <p class="text-muted">衣橱空空如也，快上传你的第一件衣物吧！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            wardrobeDB.items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'clothing-card';
+                card.innerHTML = `
+                    <img src="${item.imageUrl}" class="clothing-img">
+                    <div class="clothing-tags">
+                        <span class="tag">${item.type}</span>
+                        <span class="tag">${item.color}</span>
+                        <span class="tag">${item.style}</span>
+                        ${item.season.map(s => `<span class="tag">${s}</span>`).join('')}
+                        ${item.material ? `<span class="tag">${item.material}</span>` : ''}
+                        ${item.fit ? `<span class="tag">${item.fit}</span>` : ''}
+                        ${item.favorite ? '<span class="tag"><i class="fas fa-heart"></i></span>' : ''}
+                    </div>
+                    <div class="card-actions" style="position: absolute; top: 10px; right: 10px;">
+                        <button class="btn btn-sm btn-info" onclick="reanalyzeItem('${item.id}')" title="重新分析">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light" onclick="editItem('${item.id}')" title="编辑">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger mt-2" onclick="deleteItem('${item.id}')" title="删除">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                wardrobeGrid.appendChild(card);
+            });
+        }
+
+        // 编辑服饰项
+        function editItem(id) {
+            const item = wardrobeDB.items.find(i => i.id === id);
+            if (item) {
+                currentEditingItem = id;
+                
+                // 填充表单
+                document.getElementById('editId').value = item.id;
+                document.getElementById('editType').value = item.type;
+                document.getElementById('editColor').value = item.color;
+                document.getElementById('editStyle').value = item.style;
+                document.getElementById('editSeason').value = item.season.join('，');
+                document.getElementById('editMaterial').value = item.material || '';
+                document.getElementById('editFit').value = item.fit || '';
+                document.getElementById('editFavorite').checked = item.favorite;
+                
+                editModal.show();
+            }
+        }
+
+        // 删除服饰项
+        function deleteItem(id) {
+            if (confirm('确定要删除这件衣物吗？')) {
+                const index = wardrobeDB.items.findIndex(item => item.id === id);
+                if (index !== -1) {
+                    wardrobeDB.items.splice(index, 1);
+                    saveToDB();
+                    renderWardrobe();
+                    if (currentOrganizeMode) {
+                        renderOrganizedView(currentOrganizeMode);
+                    }
+                }
+            }
+        }
+
+        // 直接从卡片重新分析
+        async function reanalyzeItem(id) {
+            const item = wardrobeDB.items.find(i => i.id === id);
+            if (!item) return;
+            
+            try {
+                // 显示加载状态
+                const card = document.querySelector(`.clothing-card [onclick="reanalyzeItem('${id}')"]`);
+                const originalHtml = card.innerHTML;
+                card.innerHTML = '<div class="loading-spinner" style="width:1rem;height:1rem;"></div>';
+                card.disabled = true;
+                
+                // 显示全屏加载层
+                currentClothingName.textContent = item.name || '您的服饰';
+                fullscreenLoading.style.display = 'flex';
+                
+                // 重新分析流程
+                const blob = await fetch(item.imageUrl).then(r => r.blob());
+                const file = new File([blob], item.name + '.jpg', { type: 'image/jpeg' });
+                const newFileId = await uploadToDify(file);
+                const newAnalysis = await analyzeClothing(newFileId);
+                
+                // 更新物品信息
+                updateItemFromAnalysis(item, newAnalysis);
+                item.analysisResult = newAnalysis;
+                saveToDB();
+                
+                // 显示分析结果
+                displayAnalysisResults(newAnalysis);
+                
+                // 显示成功提示
+                showToast('重新分析成功！', 'success');
+                
+            } catch (error) {
+                console.error('重新分析失败:', error);
+                showToast('重新分析失败: ' + (error.message || '未知错误'), 'danger');
+            } finally {
+                // 隐藏全屏加载层
+                fullscreenLoading.style.display = 'none';
+                
+                // 恢复按钮状态
+                const card = document.querySelector(`.clothing-card [onclick="reanalyzeItem('${id}')"]`);
+                if (card) {
+                    card.innerHTML = '<i class="fas fa-redo"></i>';
+                    card.disabled = false;
+                }
+            }
+        }
+
+        // 保存到本地存储
+        function saveToDB() {
+            localStorage.setItem('wardrobeDB', JSON.stringify(wardrobeDB));
+        }
+
+        // 智能分类服饰物品
+        function categorizeItems(items) {
+            // 初始化分类结构
+            const categories = {
+                tops: [],       // 上装（贴身穿的）
+                bottoms: [],    // 下装
+                shoes: [],      // 鞋子
+                outerwear: [],  // 外套/外层衣物
+                accessories: [],// 配饰
+                uncategorized: [] // 未识别类型
+            };
+
+            // 中英文类型关键词映射（不区分大小写）
+            const typeRules = {
+                // 外套类（优先判断）
+                outerwear: [
+                    '外套', '大衣', '风衣', '羽绒服', '棉服', '冲锋衣', '夹克', 
+                    '皮衣', '西装', 'blazer', 'coat', 'jacket', 'down', 'parka'
+                ],
+                
+                // 上装类
+                tops: [
+                    'T恤', '衬衫', '毛衣', '卫衣', 'POLO', '背心', '马甲', '短袖', '长袖',
+                    '打底', '内衣', '秋衣', '汗衫', '衬衣', 't-shirt', 'shirt', 'sweater',
+                    'hoodie', 'polo', 'vest', '内衣', '吊带'
+                ],
+                
+                // 下装类
+                bottoms: [
+                    '裤', '裙', '短裤', '长裤', '牛仔裤', '西裤', '运动裤', '休闲裤', 
+                    '工装裤', '阔腿裤', '喇叭裤', '瑜伽裤', 'leggings', 'jeans', 'pants',
+                    'trousers', 'shorts', 'skirt', 'jogger', '短裙', '长裙'
+                ],
+                
+                // 鞋类
+                shoes: [
+                    '鞋', '靴', '运动鞋', '皮鞋', '凉鞋', '拖鞋', '帆布鞋', '板鞋', 
+                    '高跟鞋', 'sneaker', 'boot', 'loafer', 'sandal', 'slipper'
+                ],
+                
+                // 配饰类
+                accessories: [
+                    '包', '帽', '围巾', '腰带', '领带', '手套', '袜子', '首饰', '项链',
+                    '手链', '帽子', '耳环','领带','领结','眼镜','手表','手环','scarf', 'belt', 'tie', 'glove', 'sock', 'necklace',
+                    'bag', 'hat', 'scarf', 'belt', 'tie', 'glove', 'sock'
+                ]
+            };
+
+            // 特殊处理规则（包含这些词的一定是对应类型）
+            const exclusiveRules = {
+                'bra': 'tops',          // 文胸算上装
+                '内裤': 'uncategorized', // 内衣不参与搭配
+                '泳': 'uncategorized'   // 泳装不参与
+            };
+
+            items.forEach(item => {
+                const itemType = (item.type || '').toLowerCase();
+                let categorized = false;
+
+                // 1. 先检查特殊规则
+                for (const [keyword, category] of Object.entries(exclusiveRules)) {
+                    if (itemType.includes(keyword)) {
+                        categories[category].push(item);
+                        categorized = true;
+                        break;
+                    }
+                }
+                if (categorized) return;
+
+                // 2. 按优先级分类（外套 > 上装 > 下装 > 鞋子 > 配饰）
+                const priorityOrder = ['outerwear', 'tops', 'bottoms', 'shoes', 'accessories'];
+                
+                for (const category of priorityOrder) {
+                    const keywords = typeRules[category];
+                    const isMatch = keywords.some(kw => 
+                        itemType.includes(kw.toLowerCase()) || 
+                        (item.name && item.name.toLowerCase().includes(kw.toLowerCase()))
+                    );
+
+                    if (isMatch) {
+                        categories[category].push(item);
+                        categorized = true;
+                        break;
+                    }
+                }
+
+                // 3. 未识别类型处理
+                if (!categorized) {
+                    // 尝试通过图像分析判断（此处为预留接口）
+                    if (item.imageUrl) {
+                        // 可以调用AI进行图像分类...
+                    }
+                    categories.uncategorized.push(item);
+                }
+            });
+
+            // 将外套合并到上装中（因为外套也可以视为上装）
+            categories.tops = [...categories.tops, ...categories.outerwear];
+            
+            return categories;
+        }
+
+        // 按颜色分类服饰
+        function categorizeByColor(items) {
+            const warmColors = ['红', '橙', '黄', '粉', '棕', '暖', 'red', 'orange', 'yellow', 'pink', 'brown'];
+            const coolColors = ['蓝', '绿', '紫', '青', '冷', '蓝', 'blue', 'green', 'purple', 'cyan'];
+            
+            const result = {
+                warm: [],
+                cool: [],
+                neutral: []
+            };
+            
+            items.forEach(item => {
+                const color = (item.color || '').toLowerCase();
+                
+                if (warmColors.some(c => color.includes(c))) {
+                    result.warm.push(item);
+                } else if (coolColors.some(c => color.includes(c))) {
+                    result.cool.push(item);
+                } else {
+                    result.neutral.push(item);
+                }
+            });
+            
+            return result;
+        }
+        
+        // 按季节分类服饰
+        function categorizeBySeason(items) {
+            const result = {
+                springAutumn: [], // 春秋
+                summer: [],       // 夏季
+                winter: [],       // 冬季
+                allSeason: []      // 四季通用
+            };
+            
+            items.forEach(item => {
+                const seasons = item.season || [];
+                
+                if (seasons.includes('夏季')) {
+                    result.summer.push(item);
+                } else if (seasons.includes('冬季')) {
+                    result.winter.push(item);
+                } else if (seasons.some(s => ['春季','秋季','春秋'].includes(s))) {
+                    result.springAutumn.push(item);
+                } else {
+                    result.allSeason.push(item);
+                }
+            });
+            
+            return result;
+        }
+        
+        // 按类型整理衣橱
+        function organizeByType() {
+            currentOrganizeMode = 'type';
+            
+            // 隐藏其他视图
+            colorView.classList.remove('active');
+            seasonView.classList.remove('active');
+            typeView.classList.add('active');
+            
+            // 分类物品
+            const categories = categorizeItems(wardrobeDB.items);
+            
+            // 渲染各个分类网格
+            renderCategoryGrid(topsGrid, categories.tops);
+            renderCategoryGrid(bottomsGrid, categories.bottoms);
+            renderCategoryGrid(shoesGrid, categories.shoes);
+            renderCategoryGrid(accessoriesGrid, categories.accessories);
+            
+            // 更新整理选项的激活状态
+            updateOrganizeOptions('type');
+        }
+        
+        // 按颜色整理衣橱
+        function organizeByColor() {
+            currentOrganizeMode = 'color';
+            
+            // 隐藏其他视图
+            typeView.classList.remove('active');
+            seasonView.classList.remove('active');
+            colorView.classList.add('active');
+            
+            // 分类物品
+            const colorCategories = categorizeByColor(wardrobeDB.items);
+            
+            // 渲染暖色和冷色网格
+            renderCategoryGrid(warmColorGrid, colorCategories.warm);
+            renderCategoryGrid(coolColorGrid, colorCategories.cool);
+            
+            // 更新整理选项的激活状态
+            updateOrganizeOptions('color');
+        }
+        
+        // 按季节整理衣橱
+        function organizeBySeason() {
+            currentOrganizeMode = 'season';
+            
+            // 隐藏其他视图
+            typeView.classList.remove('active');
+            colorView.classList.remove('active');
+            seasonView.classList.add('active');
+            
+            // 分类物品
+            const seasonCategories = categorizeBySeason(wardrobeDB.items);
+            
+            // 默认显示全部季节
+            renderSeasonGrid([...seasonCategories.springAutumn, ...seasonCategories.summer, ...seasonCategories.winter, ...seasonCategories.allSeason]);
+            
+            // 更新整理选项的激活状态
+            updateOrganizeOptions('season');
+        }
+        
+        // 渲染分类网格
+        function renderCategoryGrid(gridElement, items) {
+            gridElement.innerHTML = '';
+            
+            if (items.length === 0) {
+                gridElement.innerHTML = `
+                    <div class="col-12 text-center py-3">
+                        <p class="text-muted">暂无此类服饰</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'clothing-card';
+                card.innerHTML = `
+                    <img src="${item.imageUrl}" class="clothing-img">
+                    <div class="clothing-tags">
+                        <span class="tag">${item.type}</span>
+                        <span class="tag">${item.color}</span>
+                        ${item.season.map(s => `<span class="tag">${s}</span>`).join('')}
+                        ${item.favorite ? '<span class="tag"><i class="fas fa-heart"></i></span>' : ''}
+                    </div>
+                    <div class="card-actions" style="position: absolute; top: 10px; right: 10px;">
+                        <button class="btn btn-sm btn-light" onclick="editItem('${item.id}')" title="编辑">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger mt-2" onclick="deleteItem('${item.id}')" title="删除">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                gridElement.appendChild(card);
+            });
+        }
+        
+        // 渲染季节网格
+        function renderSeasonGrid(items) {
+            seasonGrid.innerHTML = '';
+            
+            if (items.length === 0) {
+                seasonGrid.innerHTML = `
+                    <div class="col-12 text-center py-3">
+                        <p class="text-muted">暂无此类服饰</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'clothing-card';
+                card.innerHTML = `
+                    <img src="${item.imageUrl}" class="clothing-img">
+                    <div class="clothing-tags">
+                        <span class="tag">${item.type}</span>
+                        <span class="tag">${item.color}</span>
+                        ${item.season.map(s => `<span class="tag">${s}</span>`).join('')}
+                        ${item.favorite ? '<span class="tag"><i class="fas fa-heart"></i></span>' : ''}
+                    </div>
+                    <div class="card-actions" style="position: absolute; top: 10px; right: 10px;">
+                        <button class="btn btn-sm btn-light" onclick="editItem('${item.id}')" title="编辑">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger mt-2" onclick="deleteItem('${item.id}')" title="删除">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                seasonGrid.appendChild(card);
+            });
+        }
+        
+        // 按颜色筛选
+        function filterByColor(color) {
+            // 重置所有颜色框的激活状态
+            document.querySelectorAll('#colorFilter .color-box').forEach(box => {
+                box.classList.remove('active');
+            });
+            
+            // 激活当前选择的颜色
+            event.target.classList.add('active');
+            
+            // 获取所有衣物
+            const items = wardrobeDB.items;
+            
+            // 按颜色筛选
+            const colorMap = {
+                'red': ['红', 'red'],
+                'orange': ['橙', 'orange'],
+                'yellow': ['黄', 'yellow'],
+                'green': ['绿', 'green'],
+                'blue': ['蓝', 'blue'],
+                'purple': ['紫', 'purple'],
+                'black': ['黑', 'black'],
+                'white': ['白', 'white'],
+                'gray': ['灰', 'gray']
+            };
+            
+            const filteredItems = items.filter(item => {
+                const itemColor = (item.color || '').toLowerCase();
+                return colorMap[color].some(c => itemColor.includes(c));
+            });
+            
+            // 重新分类和渲染
+            const colorCategories = categorizeByColor(filteredItems);
+            renderCategoryGrid(warmColorGrid, colorCategories.warm);
+            renderCategoryGrid(coolColorGrid, colorCategories.cool);
+        }
+        
+        // 按季节筛选
+        function filterBySeason(season) {
+            // 重置所有标签的激活状态
+            document.querySelectorAll('.season-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 激活当前选择的标签
+            event.target.classList.add('active');
+            
+            // 获取季节分类
+            const seasonCategories = categorizeBySeason(wardrobeDB.items);
+            
+            // 根据选择显示不同季节的衣物
+            let itemsToShow = [];
+            
+            switch(season) {
+                case 'springAutumn':
+                    itemsToShow = seasonCategories.springAutumn;
+                    break;
+                case 'summer':
+                    itemsToShow = seasonCategories.summer;
+                    break;
+                case 'winter':
+                    itemsToShow = seasonCategories.winter;
+                    break;
+                default:
+                    itemsToShow = [...seasonCategories.springAutumn, ...seasonCategories.summer, 
+                                 ...seasonCategories.winter, ...seasonCategories.allSeason];
+            }
+            
+            renderSeasonGrid(itemsToShow);
+        }
+        
+        // 更新整理选项的激活状态
+        function updateOrganizeOptions(activeOption) {
+            const options = document.querySelectorAll('.organize-option');
+            options.forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            if (activeOption === 'type') {
+                options[0].classList.add('active');
+            } else if (activeOption === 'color') {
+                options[1].classList.add('active');
+            } else if (activeOption === 'season') {
+                options[2].classList.add('active');
+            }
+        }
+        
+        // 渲染整理视图
+        function renderOrganizedView(mode) {
+            if (mode === 'type') {
+                organizeByType();
+            } else if (mode === 'color') {
+                organizeByColor();
+            } else if (mode === 'season') {
+                organizeBySeason();
+            }
+        }
+
+        // 显示Toast提示
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast show position-fixed bottom-0 end-0 p-3 text-bg-${type}`;
+            toast.style.zIndex = '1100';
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        let currentWeather = {
+            temp: 25,
+            condition: '晴',
+            location: '北京'
+        };
+        
+        let currentOccasion = 'daily';
+        
+        // 初始化天气和场合
+        function initWeatherAndOccasion() {
+            // 默认获取天气
+            fetchWeatherData();
+            
+            // 设置场合点击事件
+            document.querySelectorAll('.occasion-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.occasion-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentOccasion = this.dataset.occasion;
+                    updateOutfitSuggestion();
+                });
+            });
+            // 确保初始化时调用一次
+            updateOutfitSuggestion();
+        }
+        function updateOutfitSuggestion() {
+            generateOutfitSuggestions();
+        }
+        /**
+         * 获取天气数据并更新UI
+         */
+         async function fetchWeatherData() {
+            try {
+                console.log('[天气] 开始请求天气数据...');
+                
+                // 调用您的天气API
+                const response = await fetch('/weather');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态码: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.debug('[天气] 完整API响应:', data);
+
+                // 适配您的API数据结构
+                const weatherInfo = {
+                    city: data.city || '未知城市',
+                    temp: parseInt(data.current_temperature) || 25,
+                    condition: data.today.wind_power || '晴',
+                    humidity: data.humidity || '50%',
+                    high: data.today.high_temperature || '--',
+                    low: data.today.low_temperature || '--'
+                };
+
+                console.log('[天气] 解析后的数据:', weatherInfo);
+                
+                // 更新UI
+                updateWeatherUI(weatherInfo);
+                
+                // 更新全局天气状态
+                currentWeather = {
+                    temp: weatherInfo.temp,
+                    condition: weatherInfo.condition,
+                    location: weatherInfo.city,
+                    rawData: data  // 保存原始数据
+                };
+                
+                // 触发搭配更新
+                updateOutfitSuggestion();
+                
+            } catch (error) {
+                console.error('[天气] 获取天气失败:', error);
+                
+                // 使用模拟数据作为后备
+                const mockData = {
+                    city: '北京市',
+                    current_temperature: '25',
+                    today: {
+                        high_temperature: '28℃',
+                        low_temperature: '18℃',
+                        wind_power: '3级风'
+                    },
+                    humidity: '50%'
+                };
+                
+                updateWeatherUI({
+                    city: mockData.city,
+                    temp: parseInt(mockData.current_temperature),
+                    condition: mockData.today.wind_power,
+                    humidity: mockData.humidity,
+                    high: mockData.today.high_temperature,
+                    low: mockData.today.low_temperature
+                });
+                
+                currentWeather = {
+                    temp: parseInt(mockData.current_temperature),
+                    condition: mockData.today.wind_power,
+                    location: mockData.city,
+                    rawData: mockData
+                };
+            }
+        }
+        // 更新天气UI
+        function updateWeatherUI(weather) {
+            const widget = document.getElementById('weatherWidget');
+            
+            // 获取天气图标类
+            const getWeatherIconClass = (condition) => {
+                const cond = condition.replace(/转.*/, '');
+                const iconMap = {
+                    '晴': 'fa-sun',
+                    '多云': 'fa-cloud',
+                    '阴': 'fa-cloud',
+                    '雨': 'fa-cloud-rain',
+                    '雪': 'fa-snowflake',
+                    '雾': 'fa-smog',
+                    '霾': 'fa-smog',
+                    '雷': 'fa-bolt'
+                };
+                
+                for (const [key, icon] of Object.entries(iconMap)) {
+                    if (cond.includes(key)) {
+                        return icon;
+                    }
+                }
+                return 'fa-cloud-sun';
+            };
+            
+            widget.innerHTML = `
+                <div class="weather-icon">
+                    <i class="fas ${getWeatherIconClass(weather.condition)}"></i>
+                </div>
+                <div>
+                    <h5 class="mb-1">${weather.city}</h5>
+                    <div class="d-flex">
+                        <div class="weather-temp me-2">${weather.temp}°C</div>
+                        <div class="weather-details">
+                            <span>${weather.condition}</span>
+                            <span class="text-muted small">${weather.high}/${weather.low}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 更新全局天气状态
+            currentWeather = {
+                temp: weather.temp,
+                condition: weather.condition,
+                location: weather.city
+            };
+        }
+        
+        /**
+         * 生成今日搭配推荐（调用Dify工作流）
+         */
+        async function generateOutfitSuggestions() {
+            console.log('[generateOutfitSuggestions] 开始生成搭配建议');
+            const outfitSuggestion = document.getElementById('outfitSuggestion');
+            
+            // 显示加载状态
+            outfitSuggestion.innerHTML = `
+                <div class="outfit-loading">
+                    <div class="outfit-spinner"></div>
+                    <h5 class="outfit-loading-text">稍等哦！搭搭的时尚灵感正在飞速运转</h5>
+                    <div class="outfit-tips">
+                        <i class="fas fa-lightbulb me-2"></i>正在根据天气和场合为您量身定制中～
+                    </div>
+                </div>
+            `;
+            
+            try {
+                // 1. 检查衣橱数据
+                console.log('[调试] wardrobeDB.items:', JSON.stringify(wardrobeDB.items, null, 2));
+                if (!wardrobeDB.items || wardrobeDB.items.length === 0) {
+                    console.warn('[警告] 衣橱为空，无法生成建议');
+                    outfitSuggestion.innerHTML = `
+                        <div class="text-center py-4">
+                            <i class="fas fa-tshirt fa-3x text-muted mb-3"></i>
+                            <p>您的衣橱空空如也</p>
+                            <p class="text-muted small">请先上传一些服饰，搭搭才能为您精准推荐搭配噢～</p>
+                            <button class="btn btn-sm btn-primary mt-2" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-plus me-1"></i>添加服饰
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // 2. 检查天气和场合数据
+                console.log('[调试] 当前天气:', currentWeather);
+                console.log('[调试] 当前场合:', currentOccasion);
+
+                // 3. 准备请求数据
+                const wardrobeDesc = wardrobeDB.items.map((item, index) => {
+                    return `第${index+1}件：(id=${item.id})：${item.material} ${item.color} ${item.fit} ${item.style} ${item.type} 适合${JSON.stringify(item.season)}`;
+                }).join('\n');
+                
+                console.log('[调试] 生成的衣橱描述:', wardrobeDesc);
+
+                const occasionMap = {
+                    'daily': '日常',
+                    'work': '工作',
+                    'date': '约会',
+                    'sport': '运动',
+                    'formal': '正式'
+                };
+
+                const apiData = {
+                    inputs: {
+                        occasion: occasionMap[currentOccasion] || '日常',
+                        temperature: String(currentWeather.temp),
+                        weather_condition: String(currentWeather.condition),
+                        wardrobe_description: String(wardrobeDesc)
+                    },
+                    query: "请使用简体中文回复，给出你的穿搭建议，只能用我的衣橱里面的服饰进行搭配！\n",
+                    response_mode: "blocking",
+                    conversation_id: "",
+                    user: "abc-123"
+                };
+                
+                console.log('[调试] 准备发送的API数据:', JSON.stringify(apiData, null, 2));
+
+                // 4. 发送API请求（模拟延迟，实际使用时移除setTimeout）
+                let response;
+                try {
+                    console.log('[调试] 正在发送请求到Dify...');
+                    // 添加3秒最小加载时间，确保用户体验
+                    const [apiResponse] = await Promise.all([
+                        fetch('http://localhost/v1/chat-messages', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': 'Bearer app-BjNbqLpHpUciZXwl7lWYj5LR',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(apiData)
+                        }),
+                        new Promise(resolve => setTimeout(resolve, 1500)) // 最小加载时间1.5秒
+                    ]);
+                    response = apiResponse;
+                } catch (error) {
+                    console.error('[错误] 请求发送失败:', error);
+                    throw error;
+                }
+                
+                console.log('[调试] 收到响应，状态码:', response.status);
+                
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    console.error('[错误] API请求失败:', response.status, errorBody);
+                    throw new Error(`API请求失败: ${response.status}`);
+                }
+
+                // 5. 解析响应
+                const result = await response.json();
+                console.log('[调试] API完整响应:', JSON.stringify(result, null, 2));
+                
+                if (!result.answer) {
+                    console.error('[错误] API返回数据缺少answer字段');
+                    throw new Error('API返回格式无效');
+                }
+
+                // 6. 解析搭配建议
+                console.log('[调试] 开始解析搭配建议...');
+                const outfit = parseOutfitSuggestion(result);
+                console.log('[调试] 解析后的搭配建议:', JSON.stringify(outfit, null, 2));
+                
+                // 7. 渲染结果（添加过渡效果）
+                outfitSuggestion.innerHTML = `
+                    <div class="outfit-recommendation animate__animated animate__fadeIn">
+                        <!-- 原有渲染内容保持不变 -->
+                        ${renderOutfitContent(outfit)}
+                    </div>
+                `;
+                
+                console.log('[调试] 搭配建议生成完成');
+                
+            } catch (error) {
+                console.error('[错误] 生成搭配建议失败:', error);
+                console.error(error.stack);
+                
+                // 显示错误状态，带有重试按钮
+                outfitSuggestion.innerHTML = `
+                    <div class="outfit-error text-center py-4">
+                        <div class="text-danger mb-3">
+                            <i class="fas fa-exclamation-triangle fa-3x"></i>
+                        </div>
+                        <h5>生成搭配失败</h5>
+                        <p class="text-muted small mb-3">${error.message || '未知错误'}</p>
+                        <button class="btn btn-primary" onclick="generateOutfitSuggestions()">
+                            <i class="fas fa-redo me-2"></i>重新尝试
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        /**
+         * 渲染搭配内容（单独提取以便复用）
+         */
+        function renderOutfitContent(outfit) {
+            // 获取物品显示图片
+            const getItemImage = (item) => {
+                if (item.id) {
+                    const dbItem = wardrobeDB.items.find(i => i.id === item.id);
+                    if (dbItem && dbItem.imageUrl) {
+                        return `<img src="${dbItem.imageUrl}" class="rounded border" style="width:100px;height:150px;object-fit:cover;">`;
+                    }
+                }
+                return `<div class="outfit-img-placeholder rounded border d-flex align-items-center justify-content-center" 
+                    style="width:100px;height:150px;background:rgba(0,0,0,0.05)">
+                    <i class="fas fa-tshirt fa-2x text-muted"></i>
+                </div>`;
+            };
+            
+            // 获取物品描述文本
+            const getItemDesc = (item) => {
+                return `
+                    <div class="small mt-1">
+                        <strong>${item.type || '未分类'}</strong><br>
+                        ${item.color ? `${item.color} · ` : ''}${item.material || ''}
+                    </div>
+                `;
+            };
+            
+            return `
+                <h4 class="text-center mb-4">
+                    <i class="fas fa-magic me-2"></i>
+                    ${getOccasionName(outfit.occasion)}推荐搭配
+                </h4>
+                
+                <div class="d-flex justify-content-center flex-wrap gap-4 mb-4">
+                    <!-- 上装 -->
+                    <div class="outfit-item text-center">
+                        ${getItemImage(outfit.top)}
+                        ${getItemDesc(outfit.top)}
+                    </div>
+                    
+                    <!-- 下装 -->
+                    <div class="outfit-item text-center">
+                        ${getItemImage(outfit.bottom)}
+                        ${getItemDesc(outfit.bottom)}
+                    </div>
+                    
+                    <!-- 鞋子 -->
+                    <div class="outfit-item text-center">
+                        ${getItemImage(outfit.shoes)}
+                        ${getItemDesc(outfit.shoes)}
+                    </div>
+                </div>
+                
+                <div class="outfit-advice card border-0 bg-light">
+                    <div class="card-body text-center">
+                        <p class="mb-0"><i class="fas fa-lightbulb me-2"></i>${outfit.advice}</p>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-center mt-4 gap-2">
+                    <button class="btn btn-primary" onclick="generateOutfitSuggestions()">
+                        <i class="fas fa-sync-alt me-2"></i>换一套
+                    </button>
+                    <button class="btn btn-outline-success" onclick="saveFavoriteOutfit()">
+                        <i class="fas fa-heart me-2"></i>收藏搭配
+                    </button>
+                </div>
+            `;
+        }
+
+        /**
+         * 解析Dify返回的搭配建议
+         */
+        function parseOutfitSuggestion(result) {
+            try {
+                const answer = result.answer || "";
+                // 将occasion转换为中文
+                const occasionMap = {
+                    'daily': '日常',
+                    'work': '工作',
+                    'date': '约会',
+                    'sport': '运动',
+                    'formal': '正式'
+                };
+                const currentOccasionCN = occasionMap[currentOccasion] || '日常';
+                
+                // 默认搭配对象
+                const outfit = {
+                    top: { 
+                        id: null, 
+                        index: null, 
+                        name: "未指定上装", 
+                        type: "上装", 
+                        color: "", 
+                        material: "", 
+                        fit: "",
+                        fullDesc: ""
+                    },
+                    bottom: { 
+                        id: null, 
+                        index: null, 
+                        name: "未指定下装", 
+                        type: "下装", 
+                        color: "", 
+                        material: "", 
+                        fit: "",
+                        fullDesc: ""
+                    },
+                    shoes: { 
+                        id: null, 
+                        index: null, 
+                        name: "未指定鞋子", 
+                        type: "鞋子", 
+                        color: "", 
+                        material: "",
+                        fullDesc: ""
+                    },
+                    accessories: { 
+                        name: "无", 
+                        type: "配饰",
+                        fullDesc: "无"
+                    },
+                    advice: "AI生成的时尚建议",
+                    tips: "",
+                    occasion: currentOccasionCN,
+                    weather: currentWeather
+                };
+
+                // 解析推荐搭配部分
+                const lines = answer.split('\n');
+                let currentSection = null;
+                
+                lines.forEach(line => {
+                    line = line.trim();
+                    
+                    // 检测当前解析的部分
+                    if (line.startsWith('上装:')) {
+                        currentSection = 'top';
+                        const desc = line.replace('上装:', '').trim();
+                        outfit.top.fullDesc = desc;
+                        
+                        // 尝试从描述中提取id
+                        const idMatch = desc.match(/id=(\d+)/);
+                        if (idMatch) {
+                            outfit.top.id = idMatch[1];
+                        }
+                        
+                        // 解析其他属性
+                        const descParts = desc.replace(/id=\d+\s*/, '').split(' ');
+                        if (descParts.length >= 1) outfit.top.type = descParts[0];
+                        if (descParts.length >= 2) outfit.top.color = descParts[1];
+                        if (descParts.length >= 3) outfit.top.material = descParts[2];
+                        if (descParts.length >= 4) outfit.top.fit = descParts[3];
+                        
+                        // 生成简短的名称
+                        outfit.top.name = [outfit.top.type, outfit.top.color].filter(Boolean).join(' ');
+                    } 
+                    else if (line.startsWith('下装:')) {
+                        currentSection = 'bottom';
+                        const desc = line.replace('下装:', '').trim();
+                        outfit.bottom.fullDesc = desc;
+                        
+                        // 尝试从描述中提取id
+                        const idMatch = desc.match(/id=(\d+)/);
+                        if (idMatch) {
+                            outfit.bottom.id = idMatch[1];
+                        }
+                        
+                        // 解析其他属性
+                        const descParts = desc.replace(/id=\d+\s*/, '').split(' ');
+                        if (descParts.length >= 1) outfit.bottom.type = descParts[0];
+                        if (descParts.length >= 2) outfit.bottom.color = descParts[1];
+                        if (descParts.length >= 3) outfit.bottom.material = descParts[2];
+                        if (descParts.length >= 4) outfit.bottom.fit = descParts[3];
+                        
+                        // 生成简短的名称
+                        outfit.bottom.name = [outfit.bottom.type, outfit.bottom.color].filter(Boolean).join(' ');
+                    } 
+                    else if (line.startsWith('鞋子:')) {
+                        currentSection = 'shoes';
+                        const desc = line.replace('鞋子:', '').trim();
+                        outfit.shoes.fullDesc = desc;
+                        
+                        // 尝试从描述中提取id
+                        const idMatch = desc.match(/id=(\d+)/);
+                        if (idMatch) {
+                            outfit.shoes.id = idMatch[1];
+                        }
+                        
+                        // 解析其他属性
+                        const descParts = desc.replace(/id=\d+\s*/, '').split(' ');
+                        if (descParts.length >= 1) outfit.shoes.type = descParts[0];
+                        if (descParts.length >= 2) outfit.shoes.color = descParts[1];
+                        if (descParts.length >= 3) outfit.shoes.material = descParts[2];
+                        
+                        // 生成简短的名称
+                        outfit.shoes.name = [outfit.shoes.type, outfit.shoes.color].filter(Boolean).join(' ');
+                    }
+                    else if (line.startsWith('配饰:')) {
+                        currentSection = 'accessories';
+                        const desc = line.replace('配饰:', '').trim();
+                        outfit.accessories.fullDesc = desc;
+                        // 尝试从描述中提取id
+                        const idMatch = desc.match(/id=(\d+)/);
+                        if (idMatch) {
+                            outfit.accessories.id = idMatch[1];
+                        }
+                        // 解析其他属性
+                        const descParts = desc.replace(/id=\d+\s*/, '').split(' ');
+                        if (descParts.length >= 1) outfit.accessories.type = descParts[0];
+                        if (descParts.length >= 2) outfit.accessories.color = descParts[1];
+                        if (descParts.length >= 3) outfit.accessories.material = descParts[2];
+                        // 生成简短的名称
+                        outfit.accessories.name = [outfit.accessories.type, outfit.accessories.color].filter(Boolean).join(' ');
+                    }
+
+                    else if (line.startsWith('穿搭小心机:')) {
+                        currentSection = 'tips';
+                        outfit.tips = line.replace('穿搭小心机:', '').trim();
+                    }
+                    else if (line.startsWith('建议:')) {
+                        currentSection = 'advice';
+                        outfit.advice = line.replace('建议:', '').trim();
+                    }
+                    // 合并多行内容
+                    else if (currentSection && line && !line.startsWith('---')) {
+                        if (currentSection === 'tips' || currentSection === 'advice') {
+                            outfit[currentSection] += '\n' + line;
+                        }
+                    }
+                });
+
+                // 尝试从衣橱中匹配具体物品
+                matchItemsFromWardrobe(outfit);
+                
+                return outfit;
+                
+            } catch (e) {
+                console.error('解析搭配建议失败:', e);
+                return getDefaultOutfit();
+            }
+        }
+
+        /**
+         * 尝试从衣橱中匹配具体物品
+         */
+        function matchItemsFromWardrobe(outfit) {
+            // 首先尝试通过id匹配
+            if (outfit.top && outfit.top.id) {
+                const matchedTop = wardrobeDB.items.find(item => item.id === outfit.top.id);
+                if (matchedTop) {
+                    outfit.top = {
+                        ...outfit.top,
+                        imageUrl: matchedTop.imageUrl,
+                        type: matchedTop.type || outfit.top.type,
+                        color: matchedTop.color || outfit.top.color,
+                        material: matchedTop.material || outfit.top.material,
+                        fit: matchedTop.fit || outfit.top.fit
+                    };
+                }
+            }
+
+            if (outfit.bottom && outfit.bottom.id) {
+                const matchedBottom = wardrobeDB.items.find(item => item.id === outfit.bottom.id);
+                if (matchedBottom) {
+                    outfit.bottom = {
+                        ...outfit.bottom,
+                        imageUrl: matchedBottom.imageUrl,
+                        type: matchedBottom.type || outfit.bottom.type,
+                        color: matchedBottom.color || outfit.bottom.color,
+                        material: matchedBottom.material || outfit.bottom.material,
+                        fit: matchedBottom.fit || outfit.bottom.fit
+                    };
+                }
+            }
+
+            if (outfit.shoes && outfit.shoes.id) {
+                const matchedShoes = wardrobeDB.items.find(item => item.id === outfit.shoes.id);
+                if (matchedShoes) {
+                    outfit.shoes = {
+                        ...outfit.shoes,
+                        imageUrl: matchedShoes.imageUrl,
+                        type: matchedShoes.type || outfit.shoes.type,
+                        color: matchedShoes.color || outfit.shoes.color,
+                        material: matchedShoes.material || outfit.shoes.material
+                    };
+                }
+            }
+
+            if (outfit.accessories && outfit.accessories.id) {
+                const matchedAccessory = wardrobeDB.items.find(item => item.id === outfit.accessories.id);
+                if (matchedAccessory) {
+                    outfit.accessories = {
+                       ...outfit.accessories,
+                        imageUrl: matchedAccessory.imageUrl,
+                        type: matchedAccessory.type || outfit.accessories.type,
+                        color: matchedAccessory.color || outfit.accessories.color,
+                        material: matchedAccessory.material || outfit.accessories.material
+                    };
+                }
+            }
+
+            // 如果没有id或者通过id没有匹配到，则使用原来的相似度匹配方法
+            if (!outfit.top.imageUrl) {
+                const categorizedItems = categorizeItems(wardrobeDB.items);
+                const matchedTop = findBestMatch(outfit.top.fullDesc, 'tops', categorizedItems);
+                if (matchedTop) {
+                    outfit.top = {
+                        ...outfit.top,
+                        id: matchedTop.id,
+                        imageUrl: matchedTop.imageUrl,
+                        type: matchedTop.type || outfit.top.type,
+                        color: matchedTop.color || outfit.top.color,
+                        material: matchedTop.material || outfit.top.material,
+                        fit: matchedTop.fit || outfit.top.fit
+                    };
+                }
+            }
+
+            if (!outfit.bottom.imageUrl) {
+                const categorizedItems = categorizeItems(wardrobeDB.items);
+                const matchedBottom = findBestMatch(outfit.bottom.fullDesc, 'bottoms', categorizedItems);
+                if (matchedBottom) {
+                    outfit.bottom = {
+                        ...outfit.bottom,
+                        id: matchedBottom.id,
+                        imageUrl: matchedBottom.imageUrl,
+                        type: matchedBottom.type || outfit.bottom.type,
+                        color: matchedBottom.color || outfit.bottom.color,
+                        material: matchedBottom.material || outfit.bottom.material,
+                        fit: matchedBottom.fit || outfit.bottom.fit
+                    };
+                }
+            }
+
+            if (!outfit.shoes.imageUrl && outfit.shoes.fullDesc !== '无') {
+                const categorizedItems = categorizeItems(wardrobeDB.items);
+                const matchedShoes = findBestMatch(outfit.shoes.fullDesc, 'shoes', categorizedItems);
+                if (matchedShoes) {
+                    outfit.shoes = {
+                        ...outfit.shoes,
+                        id: matchedShoes.id,
+                        imageUrl: matchedShoes.imageUrl,
+                        type: matchedShoes.type || outfit.shoes.type,
+                        color: matchedShoes.color || outfit.shoes.color,
+                        material: matchedShoes.material || outfit.shoes.material
+                    };
+                }
+            }
+
+            if (!outfit.accessories.imageUrl && outfit.accessories.fullDesc!== '无') {
+                const categorizedItems = categorizeItems(wardrobeDB.items);
+                const matchedAccessory = findBestMatch(outfit.accessories.fullDesc, 'accessories', categorizedItems);
+                if (matchedAccessory) {
+                    outfit.accessories = {
+                       ...outfit.accessories,
+                        id: matchedAccessory.id,
+                        imageUrl: matchedAccessory.imageUrl,
+                        type: matchedAccessory.type || outfit.accessories.type,
+                        color: matchedAccessory.color || outfit.accessories.color,
+                        material: matchedAccessory.material || outfit.accessories.material  
+                    };
+                }
+            }
+        }
+
+        /**
+         * 查找最佳匹配（辅助函数）
+         */
+        function findBestMatch(itemDesc, category, categorizedItems) {
+            // 计算两个字符串的相似度 (0-1)
+            function similarity(s1, s2) {
+                if (!s1 || !s2) return 0;
+                const str1 = s1.toLowerCase();
+                const str2 = s2.toLowerCase();
+                if (str1 === str2) return 1;
+                
+                // 简单相似度计算
+                const len = Math.max(str1.length, str2.length);
+                const distance = levenshteinDistance(str1, str2);
+                return 1 - distance / len;
+            }
+
+            // Levenshtein距离算法
+            function levenshteinDistance(a, b) {
+                const matrix = [];
+                for (let i = 0; i <= b.length; i++) {
+                    matrix[i] = [i];
+                }
+                for (let j = 0; j <= a.length; j++) {
+                    matrix[0][j] = j;
+                }
+                for (let i = 1; i <= b.length; i++) {
+                    for (let j = 1; j <= a.length; j++) {
+                        if (b.charAt(i-1) === a.charAt(j-1)) {
+                            matrix[i][j] = matrix[i-1][j-1];
+                        } else {
+                            matrix[i][j] = Math.min(
+                                matrix[i-1][j-1] + 1,
+                                matrix[i][j-1] + 1,
+                                matrix[i-1][j] + 1
+                            );
+                        }
+                    }
+                }
+                return matrix[b.length][a.length];
+            }
+
+            const descParts = itemDesc.toLowerCase().split(' ');
+            let bestMatch = null;
+            let bestScore = 0.4; // 最低相似度阈值
+
+            // 从已分类的物品中查找
+            const itemsToSearch = categorizedItems[category] || [];
+            
+            itemsToSearch.forEach(item => {
+                // 计算综合相似度
+                const typeScore = similarity(itemDesc, item.type) * 0.4;
+                const colorScore = similarity(itemDesc, item.color) * 0.3;
+                const materialScore = similarity(itemDesc, item.material) * 0.2;
+                const fitScore = similarity(itemDesc, item.fit) * 0.1;
+                
+                const totalScore = typeScore + colorScore + materialScore + fitScore;
+                
+                if (totalScore > bestScore) {
+                    bestScore = totalScore;
+                    bestMatch = item;
+                }
+            });
+
+            return bestMatch;
+        }
+        /**
+         * 获取默认搭配（当解析失败时使用）
+         */
+        function getDefaultOutfit() {
+            const occasionMap = {
+                'daily': '日常',
+                'work': '工作',
+                'date': '约会',
+                'sport': '运动',
+                'formal': '正式'
+            };
+            
+            return {
+                top: { 
+                    id: null, 
+                    index: null,
+                    name: "蓝色衬衫", 
+                    type: "衬衫", 
+                    color: "蓝色", 
+                    material: "棉质",
+                    fit: "标准",
+                    fullDesc: "衬衫 蓝色 棉质 标准"
+                },
+                bottom: { 
+                    id: null,
+                    index: null,
+                    name: "黑色西裤", 
+                    type: "西裤", 
+                    color: "黑色", 
+                    material: "羊毛",
+                    fit: "直筒",
+                    fullDesc: "西裤 黑色 羊毛 直筒"
+                },
+                shoes: { 
+                    id: null,
+                    index: null,
+                    name: "棕色皮鞋", 
+                    type: "皮鞋", 
+                    color: "棕色", 
+                    material: "皮质",
+                    fullDesc: "皮鞋 棕色 皮质"
+                },
+                accessories: { 
+                    name: "银色手表", 
+                    type: "配饰",
+                    fullDesc: "手表 银色 金属"
+                },
+                advice: "这是一套适合日常通勤的休闲商务搭配",
+                tips: "经典蓝白搭配永远不会出错，适合多种场合",
+                occasion: occasionMap[currentOccasion] || '日常',
+                weather: currentWeather
+            };
+        }
+
+        /**
+         * 渲染搭配建议到页面
+         */
+        function renderOutfitSuggestion(outfit) {
+            const outfitSuggestion = document.getElementById('outfitSuggestion');
+            
+            // 获取物品显示图片
+            const getItemImage = (item) => {
+                return item.imageUrl ? 
+                    `<img src="${item.imageUrl}" class="rounded border" style="width:100px;height:150px;object-fit:cover;">` :
+                    `<div class="outfit-img-placeholder rounded border d-flex align-items-center justify-content-center" 
+                        style="width:100px;height:150px;background:rgba(0,0,0,0.05)">
+                        <i class="fas fa-tshirt fa-2x text-muted"></i>
+                    </div>`;
+            };
+            
+            // 获取物品描述文本
+            const getItemDesc = (item) => {
+                return `
+                    <div class="small mt-1">
+                        <strong>${item.type || '未分类'}</strong><br>
+                        ${item.color ? `${item.color} · ` : ''}${item.material || ''}
+                    </div>
+                `;
+            };
+            
+            outfitSuggestion.innerHTML = `
+                <div class="outfit-recommendation">
+                    <h4 class="text-center mb-4">
+                        <i class="fas fa-magic me-2"></i>
+                        ${getOccasionName(outfit.occasion)}推荐搭配
+                    </h4>
+                    
+                    <div class="d-flex justify-content-center flex-wrap gap-4 mb-4">
+                        <!-- 上装 -->
+                        <div class="outfit-item text-center">
+                            ${getItemImage(outfit.top)}
+                            ${getItemDesc(outfit.top)}
+                        </div>
+                        
+                        <!-- 下装 -->
+                        <div class="outfit-item text-center">
+                            ${getItemImage(outfit.bottom)}
+                            ${getItemDesc(outfit.bottom)}
+                        </div>
+                        
+                        <!-- 鞋子 -->
+                        <div class="outfit-item text-center">
+                            ${outfit.shoes.imageUrl ? 
+                                `<img src="${outfit.shoes.imageUrl}" class="rounded border" style="width:100px;height:150px;object-fit:cover;">` :
+                                `<div class="outfit-img-placeholder rounded border d-flex align-items-center justify-content-center" 
+                                    style="width:100px;height:150px;background:rgba(0,0,0,0.05)">
+                                    <i class="fas fa-shoe-prints fa-2x text-muted"></i>
+                                </div>`}
+                            <div class="small mt-1">
+                                <strong>${outfit.shoes.type || '鞋子'}</strong><br>
+                                ${outfit.shoes.color || ''} ${outfit.shoes.material || ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="outfit-advice card border-0 bg-light">
+                        <div class="card-body text-center">
+                            <p class="mb-0"><i class="fas fa-lightbulb me-2"></i>${outfit.advice}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-center mt-4 gap-2">
+                        <button class="btn btn-primary" onclick="generateOutfitSuggestions()">
+                            <i class="fas fa-sync-alt me-2"></i>换一套
+                        </button>
+                        <button class="btn btn-outline-success" onclick="saveFavoriteOutfit()">
+                            <i class="fas fa-heart me-2"></i>收藏搭配
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 辅助函数：获取场合名称
+        function getOccasionName(occasion) {
+            const names = {
+                daily: '日常',
+                work: '工作',
+                date: '约会',
+                sport: '运动',
+                formal: '正式'
+            };
+            return names[occasion] || '今日';
+        }
+        // 收藏当前搭配
+        function saveFavoriteOutfit() {
+            const currentOutfit = generateSmartOutfit();
+            
+            if (!currentOutfit.top && !currentOutfit.bottom && !currentOutfit.shoes) {
+                showToast('没有有效的搭配可以收藏', 'warning');
+                return;
+            }
+            
+            if (!wardrobeDB.outfits) {
+                wardrobeDB.outfits = [];
+            }
+            
+            const outfitItems = [];
+            if (currentOutfit.top) outfitItems.push(currentOutfit.top.id);
+            if (currentOutfit.bottom) outfitItems.push(currentOutfit.bottom.id);
+            if (currentOutfit.shoes) outfitItems.push(currentOutfit.shoes.id);
+            
+            wardrobeDB.outfits.push({
+                id: Date.now().toString(),
+                items: outfitItems,
+                occasion: currentOccasion,
+                weather: currentWeather,
+                createdAt: new Date().toISOString()
+            });
+            
+            saveToDB();
+            showToast('搭配已收藏！', 'success');
+        }
+    </script>
+</body>
+</html>

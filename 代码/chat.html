@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搭搭-你的专属AI穿搭助手</title>
+    <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="chat_styles.css">
+</head>
+<body>
+    <!-- 头像裁剪模态框 -->
+    <div class="modal" id="cropModal">
+        <div class="modal-content">
+            <div id="cropper-container" style="width: 100%; height: 400px;">
+                <img id="cropper-image" style="max-width: 100%; max-height: 100%;">
+            </div>
+            <div class="modal-actions">
+                <button onclick="cancelCrop()" style="background: #e2e8f0; color: #4a5568;">取消</button>
+                <button onclick="applyCrop()">确认裁剪</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面一：登录界面 -->
+    <div class="container page active" id="page1">
+        <div class="decoration decoration-1"></div>
+        <div class="decoration decoration-2"></div>
+        <div class="content-wrapper">
+            <h2>欢迎来到搭搭！你的AI穿搭助手 👗</h2>
+            <p style="color: #4a5568; margin-bottom: 2rem;">让我们开始打造您的专属穿搭风格吧~</p>
+            
+            <div class="form-group avatar-upload">
+                <div class="avatar-options" id="avatar-options">
+                    <div class="avatar-option selected" style="background-image: url('http://img2.baidu.com/it/u=1010222189,1658135931&fm=253&app=138&f=JPEG?w=500&h=500')" data-avatar="1"></div>
+                    <div class="avatar-option" style="background-image: url('http://img2.baidu.com/it/u=4073157017,1496656754&fm=253&app=138&f=JPEG?w=500&h=500')" data-avatar="2"></div>
+                    <div class="avatar-option" style="background-image: url('http://img0.baidu.com/it/u=192249648,1398446147&fm=253&app=138&f=JPEG?w=500&h=500')" data-avatar="3"></div>
+                    <div class="avatar-option" style="background-image: url('http://img0.baidu.com/it/u=2935836209,2029867742&fm=253&app=138&f=JPEG?w=500&h=500')" data-avatar="4"></div>
+                    <div class="avatar-option" style="background-image: url('http://img2.baidu.com/it/u=3218732801,102703520&fm=253&app=138&f=JPEG?w=500&h=500')" data-avatar="5"></div>
+                    <div class="avatar-option" style="background-image: url('http://img1.baidu.com/it/u=3764858993,3084695764&fm=253&app=138&f=JPEG?w=500&h=500')" data-avatar="6"></div>
+                </div>
+                <div class="avatar-preview" id="avatar-preview" style="background-image: url('https://api.dicebear.com/7.x/adventurer/svg?seed=1')"></div>
+                <label for="avatar">或上传自定义头像</label>
+                <input type="file" id="avatar" accept="image/*">
+            </div>
+            
+            <div class="form-group">
+                <label>昵称</label>
+                <div class="username-input-container">
+                    <input type="text" id="username" placeholder="请输入您的昵称">
+                    <button class="random-username-btn" onclick="generateRandomUsername()" title="随机生成昵称">
+                        <i class="fas fa-dice"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>性别</label>
+                <select id="user_sex">
+                    <option value="女">女</option>
+                    <option value="男">男</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>年龄(岁)</label>
+                <input type="number" id="age" min="10" max="100" placeholder="例如：20">
+            </div>
+            
+            <div class="nav-buttons">
+                <div></div> <!-- 占位空div -->
+                <button onclick="validatePage1()">开始穿搭之旅 →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面二：基本信息 -->
+    <div class="container page" id="page2">
+        <div class="content-wrapper">
+            <h2>您的身体数据 📏</h2>
+            <p style="color: #4a5568; margin-bottom: 2rem;">提供准确的身体数据有助于我们给出更合适的建议</p>
+            
+            <div class="form-group">
+                <label>身高(cm)</label>
+                <input type="number" id="height" min="100" max="250" placeholder="例如：165">
+            </div>
+            
+            <div class="form-group">
+                <label>体重(kg)</label>
+                <input type="number" id="weight" min="30" max="200" placeholder="例如：50">
+            </div>
+            
+            <div class="form-group">
+                <label>体型</label>
+                <div>
+                    <div class="option-btn" data-body-type="pear">梨型</div>
+                    <div class="option-btn" data-body-type="apple">苹果型</div>
+                    <div class="option-btn" data-body-type="hourglass">沙漏型</div>
+                    <div class="option-btn" data-body-type="rectangle">直筒型</div>
+                    <div class="option-btn" data-body-type="inverted-triangle">倒三角型</div>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <button onclick="prevPage()" style="background: #e2e8f0; color: #4a5568;">← 返回</button>
+                <button onclick="validatePage2()">下一步 →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面三：风格偏好 -->
+    <div class="container page" id="page3">
+        <div class="content-wrapper">
+            <h2>您的风格偏好 🎨</h2>
+            <p style="color: #4a5568; margin-bottom: 2rem;">选择您喜欢的颜色和风格，让我们更了解您的品味</p>
+            
+            <div class="form-group">
+                <label>您喜欢什么颜色呢？</label>
+                <div class="color-picker">
+                    <div class="color-option" style="background:#1C64F2" data-color="blue" title="蓝色"></div>
+                    <div class="color-option" style="background:#ef2525" data-color="red" title="红色"></div>
+                    <div class="color-option" style="background:#28b02c" data-color="green" title="绿色"></div>
+                    <div class="color-option" style="background:#b720d2" data-color="purple" title="紫色"></div>
+                    <div class="color-option" style="background:#ff7700" data-color="orange" title="橙色"></div>
+                    <div class="color-option" style="background:#bababa" data-color="gray" title="灰色"></div>
+                    <div class="color-option" style="background:#000000" data-color="black" title="黑色"></div>
+                    <div class="color-option" style="background:#FFFFFF;border:1px solid #eee" data-color="white" title="白色"></div>
+                    <div class="color-option" style="background:#ffcd03" data-color="yellow" title="黄色"></div>
+                    <div class="color-option" style="background:#ff96b9" data-color="pink" title="粉色"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>您偏好的风格是？（可多选）</label>
+                <div>
+                    <div class="option-btn" data-style="chinese">中国风</div>
+                    <div class="option-btn" data-style="commute">通勤风</div>
+                    <div class="option-btn" data-style="new-chinese">新中式</div>
+                    <div class="option-btn" data-style="byzantine">拜占庭艺术</div>
+                    <div class="option-btn" data-style="dopamine">多巴胺穿搭</div>
+                    <div class="option-btn" data-style="japanese">日系</div>
+                    <div class="option-btn" data-style="casual">休闲风</div>
+                    <div class="option-btn" data-style="lady">淑女风</div>
+                    <div class="option-btn" data-style="romantic">浪漫主义</div>
+                    <div class="option-btn" data-style="mallard">美拉德穿搭</div>
+                    <div class="option-btn" data-style="korean">韩系</div>
+                    <div class="option-btn" data-style="country">田园风</div>
+                    <div class="option-btn" data-style="socialite">名媛风</div>
+                    <div class="option-btn" data-style="gothic">哥特风格</div>
+                    <div class="option-btn" data-style="european">欧美风</div>
+                    <div class="option-btn" data-style="campus">校园风</div>
+                    <div class="option-btn" data-style="rayli">瑞丽风</div>
+                    <div class="option-btn" data-style="baroque">巴洛克风格</div>
+                    <div class="option-btn" data-style="british">英伦风</div>
+                    <div class="option-btn" data-style="sporty">运动风</div>
+                    <div class="option-btn" data-style="simple">简约风</div>
+                    <div class="option-btn" data-style="rococo">洛可可风格</div>
+                    <div class="option-btn" data-style="french">法式</div>
+                    <div class="option-btn" data-style="party">Party风</div>
+                    <div class="option-btn" data-style="minimal">极简风</div>
+                    <div class="option-btn" data-style="lolita">洛丽塔风格</div>
+                    <div class="option-btn" data-style="bohemian">波西米亚</div>
+                    <div class="option-btn" data-style="date">约会装</div>
+                    <div class="option-btn" data-style="neutral">中性风</div>
+                    <div class="option-btn" data-style="victorian">维多利亚风</div>
+                    <div class="option-btn" data-style="vacation">度假风</div>
+                    <div class="option-btn" data-style="normcore">性冷淡</div>
+                    <div class="option-btn" data-style="neoclassical">新古典主义</div>
+                    <div class="option-btn" data-style="ethnic">民族风</div>
+                    <div class="option-btn" data-style="new-raphaelite">新拉斐尔派</div>
+                    <div class="option-btn" data-style="dramatic">戏剧风</div>
+                    <div class="option-btn" data-style="soviet">苏联风格</div>
+                    <div class="option-btn" data-style="retro">复古风</div>
+                    <div class="option-btn" data-style="surrealism">超现实主义</div>
+                    <div class="option-btn" data-style="y2k">Y2K</div>
+                    <div class="option-btn" data-style="pop">波普艺术</div>
+                    <div class="option-btn" data-style="hiphop">嘻哈风</div>
+                    <div class="option-btn" data-style="op">欧普艺术</div>
+                    <div class="option-btn" data-style="punk">朋克风</div>
+                    <div class="option-btn" data-style="minimalism">极简主义</div>
+                    <div class="option-btn" data-style="hippie">嬉皮风</div>
+                    <div class="option-btn" data-style="futurism">未来主义</div>
+                    <div class="option-btn" data-style="sweet-cool">甜酷风</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>适配季节（可多选）</label>
+                <div class="season-options">
+                    <div class="season-option" data-season="spring">春</div>
+                    <div class="season-option" data-season="summer">夏</div>
+                    <div class="season-option" data-season="autumn">秋</div>
+                    <div class="season-option" data-season="winter">冬</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>您的具体需求（可不填写）</label>
+                <input type="text" id="query" placeholder="例如：小个子显高攻略、上班通勤穿搭、约会穿搭建议等">
+            </div>
+            
+            <div class="nav-buttons">
+                <button onclick="prevPage()" style="background: #e2e8f0; color: #4a5568;">← 返回</button>
+                <button onclick="generateRecommendation()">生成推荐 →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面四：推荐结果 -->
+    <div class="container page" id="page4">
+        <div class="content-wrapper">
+            <h2>您的专属穿搭建议 ✨</h2>
+            <!-- <div class="success-message">
+                已根据您的信息生成个性化穿搭建议，请查收~
+            </div> -->
+            <div id="recommendation-text"></div>
+            
+            <div class="chat-tip">
+                <p>💡 还想了解更多？点击下方按钮与搭搭直接对话，获取更多个性化建议！</p>
+            </div>
+            
+            <div class="nav-buttons">
+                <button onclick="prevPage()" style="background: #e2e8f0; color: #4a5568;">← 返回</button>
+                <button onclick="nextPage(5)">与搭搭对话 💬</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 页面五：聊天机器人页面 -->
+    <div class="container page" id="page5">
+        <div class="content-wrapper">
+            <h2>与搭搭对话 💬</h2>
+            <p style="color: #4a5568; margin-bottom: 1rem;">您可以继续询问更多穿搭建议，我会根据您之前提供的信息为您服务~</p>
+            
+            <div class="chat-container" id="dify-chatbot-container">
+                <iframe
+                    id="chatbot-iframe"
+                    style="width: 100%; height: 100%; border: none; border-radius: 12px;"
+                    frameborder="0"
+                    allow="microphone">
+                </iframe>
+            </div>
+            
+            <div class="nav-buttons">
+                <button onclick="prevPage()" style="background: #e2e8f0; color: #4a5568;">← 返回</button>
+                <button onclick="nextPage(1)">重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
+    <script>
+        // 页面导航控制
+        let currentPage = 1;
+        let cropper;
+        let userData = {}; // 存储用户数据，用于聊天机器人
+        
+        function nextPage(pageNum) {
+            document.querySelector(`#page${currentPage}`).classList.remove('active');
+            currentPage = pageNum;
+            document.querySelector(`#page${currentPage}`).classList.add('active');
+            
+            // 如果是聊天页面，初始化聊天iframe
+            if (pageNum === 5) {
+                initDifyChatbot();
+            }
+        }
+
+        function prevPage() {
+            nextPage(currentPage - 1);
+        }
+
+        // 头像上传和裁剪
+        document.getElementById('avatar').addEventListener('change', function(e) {
+            if (e.target.files.length === 0) return;
+            
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                document.getElementById('cropper-image').src = event.target.result;
+                document.getElementById('cropModal').style.display = 'flex';
+                
+                // 初始化Cropper
+                const image = document.getElementById('cropper-image');
+                if (cropper) {
+                    cropper.destroy();
+                }
+                
+                cropper = new Cropper(image, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    autoCropArea: 0.8,
+                    responsive: true,
+                    guides: false
+                });
+            };
+            
+            reader.readAsDataURL(file);
+        });
+
+        function cancelCrop() {
+            document.getElementById('cropModal').style.display = 'none';
+            document.getElementById('avatar').value = '';
+        }
+
+        function applyCrop() {
+            const canvas = cropper.getCroppedCanvas({
+                width: 300,
+                height: 300,
+                minWidth: 256,
+                minHeight: 256,
+                maxWidth: 4096,
+                maxHeight: 4096,
+                fillColor: '#fff',
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+            
+            document.getElementById('avatar-preview').style.backgroundImage = `url(${canvas.toDataURL()})`;
+            document.getElementById('cropModal').style.display = 'none';
+            
+            // 取消选择任何固定头像
+            document.querySelectorAll('.avatar-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+        }
+
+        // 选项选择交互
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 如果是体型选择，只能单选
+                if (this.dataset.bodyType) {
+                    document.querySelectorAll('[data-body-type]').forEach(b => b.classList.remove('selected'));
+                }
+                this.classList.toggle('selected');
+            });
+        });
+
+        // 颜色选择交互
+        document.querySelectorAll('.color-option').forEach(color => {
+            color.addEventListener('click', function() {
+                this.classList.toggle('selected');
+            });
+        });
+
+        // 固定头像选择
+        document.querySelectorAll('.avatar-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.avatar-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                const avatarUrl = this.style.backgroundImage;
+                document.getElementById('avatar-preview').style.backgroundImage = avatarUrl;
+                document.getElementById('avatar').value = ''; // 清除上传的头像
+            });
+        });
+
+        // 随机昵称生成
+        function generateRandomUsername() {
+            const adjectives = [
+                '优雅', '灵动', '迷人', '自信', '耀眼', '清新', 
+                '时尚', '精致', '典雅', '浪漫', '高贵', '率真',
+                '大方', '活泼', '活力', '潮流', '勇敢', '轻盈'
+            ];
+            const nouns = [
+                '安妮', '安娜', '米娅', '诺亚', '艾莉', '汤姆',
+                '杰西', '萌萌', '小鹿', '彩虹', '露西', '皮皮',
+                '云朵', '星辰', '微风', '阳光', '花语', '海洋'
+            ];
+            const suffixes = [
+                '小姐', '先生', '', '', '', ''  // 空字符串增加不使用后缀的概率
+            ];
+            
+            // 随机选择组合
+            const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
+            const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+            const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+            
+            // 生成随机数 (0-99)，但只有20%概率添加数字
+            let nameWithNumber = '';
+            if (Math.random() < 0.2) {
+                const randomNum = Math.floor(Math.random() * 100);
+                nameWithNumber = randomNum.toString();
+            }
+            
+            // 组合成昵称 (根据是否有后缀和数字来调整格式)
+            let username;
+            if (randomSuffix) {
+                username = `${randomAdj}的${randomNoun}${randomSuffix}${nameWithNumber}`;
+            } else {
+                username = `${randomAdj}的${randomNoun}${nameWithNumber}`;
+            }
+            
+            document.getElementById('username').value = username;
+        }
+
+        // 页面一验证
+        function validatePage1() {
+            const username = document.getElementById('username').value.trim();
+            const age = document.getElementById('age').value;
+            
+            if (!username) {
+                alert('给自己起个可爱/帅气的昵称吧！这样搭搭才能更好地认识你呀~');
+                return;
+            }
+            
+            if (!age) {
+                alert('请填写真实年龄哦~ 这样搭搭才能推荐适合你年龄段的穿搭呢！');
+                return;
+            }
+            
+            // 保存用户数据
+            userData = {
+                username: username,
+                user_sex: document.getElementById('user_sex').value,
+                age: age,
+                avatar: document.getElementById('avatar-preview').style.backgroundImage
+            };
+            
+            nextPage(2);
+        }
+
+        function validatePage2() {
+            const height = document.getElementById('height').value;
+            const weight = document.getElementById('weight').value;
+            const bodyType = document.querySelector('[data-body-type].selected');
+            
+            if (!height) {
+                alert('请填写真实身高哦~ 这样搭搭才能推荐合身的衣服呢！');
+                return;
+            }
+            
+            if (!weight) {
+                alert('请填写真实体重哦~ 放心，这是我们的秘密，搭搭不会告诉别人的~');
+                return;
+            }
+            
+            if (!bodyType) {
+                alert('请选择您的体型~ 这样搭搭才能扬长避短，推荐最适合您的穿搭方案！');
+                return;
+            }
+            
+            // 保存用户数据
+            userData.height = height;
+            userData.weight = weight;
+            userData.body_shape = bodyType.dataset.bodyType;
+            
+            nextPage(3);
+        }
+        // 生成推荐
+        async function generateRecommendation() {
+            // 季节映射表（英文转中文）
+            const selectedSeasons = [...document.querySelectorAll('.season-option.selected')]
+                .map(season => {
+                    const seasonMap = {
+                        "spring": "春",
+                        "summer": "夏",
+                        "autumn": "秋",
+                        "winter": "冬"
+                    };
+                    return seasonMap[season.dataset.season] || season.dataset.season;
+                });
+
+            // 如果没有选择季节，默认使用当前季节
+            if (selectedSeasons.length === 0) {
+                const currentMonth = new Date().getMonth() + 1;
+                let defaultSeason = "春";
+                if (currentMonth >= 3 && currentMonth <= 5) defaultSeason = "春";
+                else if (currentMonth >= 6 && currentMonth <= 8) defaultSeason = "夏";
+                else if (currentMonth >= 9 && currentMonth <= 11) defaultSeason = "秋";
+                else defaultSeason = "冬";
+                selectedSeasons.push(defaultSeason);
+            }
+
+            // 体型映射表（英文转中文）
+            const bodyShapeMap = {
+                "pear": "梨型",
+                "apple": "苹果型",
+                "hourglass": "沙漏型",
+                "rectangle": "直筒型",
+                "inverted-triangle": "倒三角型"
+            };
+
+            // 收集用户数据（全部转为中文）
+            userData = {
+                username: document.getElementById('username').value,
+                user_sex: document.getElementById('user_sex').value, // 已经是中文
+                age: document.getElementById('age').value,
+                height: document.getElementById('height').value,
+                weight: document.getElementById('weight').value,
+                body_shape: bodyShapeMap[document.querySelector('[data-body-type].selected')?.dataset.bodyType] || "",
+                colors: [...document.querySelectorAll('.color-option.selected')].map(c => {
+                    const colorMap = {
+                        "blue": "蓝色",
+                        "red": "红色",
+                        "green": "绿色",
+                        "purple": "紫色",
+                        "orange": "橙色",
+                        "gray": "灰色",
+                        "black": "黑色",
+                        "white": "白色",
+                        "yellow": "黄色",
+                        "pink": "粉色"
+                    };
+                    return colorMap[c.dataset.color] || c.dataset.color;
+                }),
+                style: [...document.querySelectorAll('[data-style].selected')]
+                    .map(el => el.textContent.trim()), // 直接取中文文本（如"中国风"）
+                season: selectedSeasons,
+                query: document.getElementById('query').value || "请根据我的信息推荐合适的穿搭"
+            };
+
+            // 显示加载状态
+            document.getElementById('recommendation-text').innerHTML = `
+                <p style="text-align: center;">正在根据您的信息生成个性化穿搭建议...</p>
+                <div class="loading-spinner"></div>
+            `;
+
+            nextPage(4);
+
+            try {
+                // 准备API请求数据（全部中文）
+                const apiData = {
+                    inputs: {
+                        user_sex: userData.user_sex,
+                        age: String(userData.age),
+                        height: String(userData.height),
+                        weight: String(userData.weight),
+                        season: userData.season.join('，'),
+                        body_shape: userData.body_shape,
+                        style: userData.style.join('，'), 
+                        colors: userData.colors.join('，')
+                    },
+                    query: userData.query,
+                    response_mode: "blocking",
+                    conversation_id: "",
+                    user: "abc-123"  
+                };
+
+                console.log("API请求数据（中文）:", JSON.stringify(apiData, null, 2));
+
+                const response = await fetch('http://localhost/v1/chat-messages', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer app-78GXf0JFVCjfl155l4apaGCV',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(apiData)
+                });
+
+                if (!response.ok) {
+                    const errorResponse = await response.json().catch(() => ({}));
+                    throw new Error(`请求失败: ${response.status} - ${errorResponse.message || '未知错误'}`);
+                }
+
+                const result = await response.json();
+                document.getElementById('recommendation-text').innerHTML = result.answer || "未获取到有效建议";
+
+            } catch (error) {
+                document.getElementById('recommendation-text').innerHTML = `
+                    <p style="color: red">生成推荐时出错:</p>
+                    <p><strong>${error.message}</strong></p>
+                    <button onclick="generateRecommendation()" style="margin-top: 10px;">重试</button>
+                `;
+            }
+        }
+
+        function initDifyChatbot() {
+            try {
+                // 构建URL参数
+                const params = new URLSearchParams();
+                
+                // 添加用户基本信息
+                params.append('user_sex', userData.user_sex || '');
+                params.append('age', userData.age || '');
+                params.append('height', userData.height || '');
+                params.append('weight', userData.weight || '');
+                params.append('season', userData.season || '');
+                params.append('body_shape', userData.body_shape || '');
+                params.append('style', userData.style.join('，') || '');
+                params.append('colors', userData.colors.join('，') || '');
+                params.append('username', userData.username || '时尚达人');
+                
+                // 构建完整URL
+                const chatbotUrl = `http://localhost/chatbot/XeHgGsvjEFBhD3wH?${params.toString()}`;
+                
+                // 设置iframe的src
+                const iframe = document.getElementById('chatbot-iframe');
+                iframe.src = chatbotUrl;
+                
+                console.log("聊天URL:", chatbotUrl);
+                
+            } catch (error) {
+                console.error("聊天机器人初始化失败:", error);
+                document.getElementById('dify-chatbot-container').innerHTML = `
+                    <div style="padding: 20px; color: red; text-align: center;">
+                        <p><strong>聊天初始化失败</strong></p>
+                        <p>${error.message}</p>
+                        <button onclick="initDifyChatbot()" style="margin-top: 10px;">重试</button>
+                    </div>
+                `;
+            }
+        }
+        // 更新默认头像预览的初始值，保持一致
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstAvatarUrl = document.querySelector('.avatar-option').style.backgroundImage;
+            document.getElementById('avatar-preview').style.backgroundImage = firstAvatarUrl;
+            document.querySelectorAll('.season-option').forEach(season => {
+                season.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

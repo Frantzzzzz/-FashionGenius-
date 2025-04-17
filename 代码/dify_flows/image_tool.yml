@@ -1,0 +1,232 @@
+app:
+  description: ''
+  icon: 📷
+  icon_background: '#FEF7C3'
+  mode: workflow
+  name: image_tool
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: http-request
+      id: 1744195012856-source-1744195494300-target
+      source: '1744195012856'
+      sourceHandle: source
+      target: '1744195494300'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1744195494300-source-1744195663787-target
+      source: '1744195494300'
+      sourceHandle: source
+      target: '1744195663787'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: 1744195663787-source-1744199695350-target
+      source: '1744195663787'
+      sourceHandle: source
+      target: '1744199695350'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: prompt
+          max_length: 256
+          options: []
+          required: true
+          type: text-input
+          variable: prompt
+        - label: image_size
+          max_length: 48
+          options:
+          - 1024x1024
+          - 512x1024
+          - 768x512
+          - 768x1024
+          - 1024x576
+          - 576x1024
+          required: true
+          type: select
+          variable: image_size
+      height: 116
+      id: '1744195012856'
+      position:
+        x: 80
+        y: 282
+      positionAbsolute:
+        x: 80
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        authorization:
+          config:
+            api_key: sk-uldsgojwjxadvrvpviwvuscdbniaemhsfpsmqkbypdxxdzvj
+            type: bearer
+          type: api-key
+        body:
+          data:
+          - id: key-value-21
+            key: ''
+            type: text
+            value: '{"model":"black-forest-labs/FLUX.1-schnell","prompt":"{{#1744195012856.prompt#}}","image
+              size":"{{#1744195012856.image_size#}}"}'
+          type: json
+        desc: ''
+        headers: Content-Type:application/json
+        method: POST
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        timeout:
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+        title: HTTP 请求
+        type: http-request
+        url: https://api.siliconflow.cn/v1/images/generations
+        variables: []
+      height: 135
+      id: '1744195494300'
+      position:
+        x: 383.05032401987603
+        y: 282
+      positionAbsolute:
+        x: 383.05032401987603
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "def main(arg1: str):\n    import json\n    data = json.loads(arg1)\n\
+          \    return {\n        'url': data[\"images\"][0][\"url\"]\n    }\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          url:
+            children: null
+            type: string
+        selected: false
+        title: 代码执行
+        type: code
+        variables:
+        - value_selector:
+          - '1744195494300'
+          - body
+          variable: arg1
+      height: 54
+      id: '1744195663787'
+      position:
+        x: 670.684027259155
+        y: 282
+      positionAbsolute:
+        x: 670.684027259155
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - '1744195663787'
+          - url
+          variable: url
+        selected: false
+        title: 结束
+        type: end
+      height: 90
+      id: '1744199695350'
+      position:
+        x: 974.684027259155
+        y: 282
+      positionAbsolute:
+        x: 974.684027259155
+        y: 282
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 37.79554838460592
+      y: 103.21401646747148
+      zoom: 0.6858898578976407

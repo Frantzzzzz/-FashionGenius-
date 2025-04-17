@@ -1,0 +1,737 @@
+app:
+  description: ''
+  icon: face_with_cowboy_hat
+  icon_background: '#D1E0FF'
+  mode: advanced-chat
+  name: 搭搭_chat
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/siliconflow:0.0.8@217f973bd7ced1b099c2f0c669f1356bdf4cc38b8372fd58d7874f9940b95de3
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions: []
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - remote_url
+      - local_file
+      enabled: true
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: '⚠️ 穿搭气象台特别预警 ⚠️
+
+      今日时尚指数：
+
+      🌪️ 灵感龙卷风过境 → 急需补给
+
+      💫 选择困难雾霾 → 能见度极低
+
+      ✨ 镜子反射率 → 嫌弃光波强烈
+
+      建议立即采取防护措施！
+
+
+      请告诉我：
+
+      ✨场合  ✨身材痛点 ✨风格/色彩偏好'
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: true
+    suggested_questions:
+    - 求小个子显高攻略！
+    - 我要满满的多巴胺！
+    - 中性风 美式复古
+    suggested_questions_after_answer:
+      enabled: true
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: llm-source-1744201478964-target
+      source: llm
+      sourceHandle: source
+      target: '1744201478964'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1744201478964-source-1744201614435-target
+      source: '1744201478964'
+      sourceHandle: source
+      target: '1744201614435'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1744201614435-source-1744201758630-target
+      source: '1744201614435'
+      sourceHandle: source
+      target: '1744201758630'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: answer
+      id: 1744201758630-source-answer-target
+      source: '1744201758630'
+      sourceHandle: source
+      target: answer
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: llm
+      id: 1744227163209-1-llm-target
+      source: '1744227163209'
+      sourceHandle: '1'
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1744226878020-source-1744227542437-target
+      source: '1744226878020'
+      sourceHandle: source
+      target: '1744227542437'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: question-classifier
+        targetType: knowledge-retrieval
+      id: 1744227163209-2-1744228186700-target
+      source: '1744227163209'
+      sourceHandle: '2'
+      target: '1744228186700'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1744228186700-source-1744226878020-target
+      source: '1744228186700'
+      sourceHandle: source
+      target: '1744226878020'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: variable-aggregator
+      id: 1744201446106-source-1744288302681-target
+      source: '1744201446106'
+      sourceHandle: source
+      target: '1744288302681'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: variable-aggregator
+        targetType: question-classifier
+      id: 1744288302681-source-1744227163209-target
+      source: '1744288302681'
+      sourceHandle: source
+      target: '1744227163209'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 姓别
+          max_length: 15
+          options:
+          - 男
+          - 女
+          required: true
+          type: select
+          variable: user_sex
+        - label: 年龄(岁)
+          max_length: 10
+          options: []
+          required: true
+          type: text-input
+          variable: age
+        - label: 身高(cm)
+          max_length: 10
+          options: []
+          required: true
+          type: text-input
+          variable: height
+        - label: 体重(kg)
+          max_length: 10
+          options: []
+          required: true
+          type: text-input
+          variable: weight
+        - label: 适配季节
+          max_length: 48
+          options: []
+          required: true
+          type: text-input
+          variable: season
+        - label: 体型
+          max_length: 48
+          options:
+          - 梨形
+          - 苹果型
+          - 沙漏型
+          - 直筒型
+          - 倒三角型
+          required: true
+          type: select
+          variable: body_shape
+        - allowed_file_extensions: []
+          allowed_file_types:
+          - image
+          allowed_file_upload_methods:
+          - local_file
+          - remote_url
+          label: 风格偏好
+          max_length: 100
+          options: []
+          required: false
+          type: text-input
+          variable: style
+        - label: 颜色偏好
+          max_length: 48
+          options: []
+          required: false
+          type: text-input
+          variable: color
+        - label: 材质偏好
+          max_length: 48
+          options: []
+          required: false
+          type: text-input
+          variable: material
+      height: 298
+      id: '1744201446106'
+      position:
+        x: -308.0144228881668
+        y: 132.2864309567051
+      positionAbsolute:
+        x: -308.0144228881668
+        y: 132.2864309567051
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params: {}
+          mode: chat
+          name: Qwen/Qwen2.5-7B-Instruct
+          provider: langgenius/siliconflow/siliconflow
+        prompt_template:
+        - id: 4c9339ab-e9a0-49fb-b886-936c5da879c3
+          role: system
+          text: '##要求：
+
+            根据用户聊天记录和用户输入{{#sys.query#}}，生成给图像生成工具的参数：提示词和图像尺寸。
+
+            - 提示词：请从对话记录中提取用户相关信息和服饰信息（用户相关信息包括年龄、性别、身高、体重、体型、肤色、风格偏好、色彩偏好、场景、天气等；服饰信息包括颜色、款式、版型、面料等），生成给stable
+            diffusion等图片生成模型的英文提示词，提示词内容尽可能丰富；
+
+            - 图像尺寸：请从对话记录中找到和图像尺寸相关的词汇，并找到和图像尺寸选项中最接近的一个，如果没有相关词汇，则默认选择1024x576。图像尺寸选项有：1024x1024,
+            512x1024, 576x1024, 1024x576
+
+
+            ##输出要求：
+
+            最终只需输出json格式的文本，内容格式如下：
+
+            {"prompt":"english prompt", "image_size":"1024x576"}
+
+            '
+        selected: false
+        title: LLM
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 89
+      id: llm
+      position:
+        x: 675.3252348185284
+        y: 74.19665855837962
+      positionAbsolute:
+        x: 675.3252348185284
+        y: 74.19665855837962
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '![]({{#1744201758630.url#}})'
+        desc: ''
+        selected: false
+        title: 直接回复
+        type: answer
+        variables: []
+      height: 104
+      id: answer
+      position:
+        x: 1293.2586109012716
+        y: 74.19665855837962
+      positionAbsolute:
+        x: 1293.2586109012716
+        y: 74.19665855837962
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "# def main(arg1: str) -> dict:\n#     import json\n#     data = json.loads(arg1)\n\
+          #     return {\n#         \"prompt\": data['prompt'],\n#         \"image_size\"\
+          : data['image_size']\n#     }\ndef main(arg1: str) -> dict:\n    import\
+          \ json\n    import re\n\n    def extract_json_from_string(text: str):\n\
+          \        \"\"\"从文本中提取第一个有效的 JSON 对象\"\"\"\n        matches = re.findall(r'\\\
+          {[^\\{\\}]*\"prompt\"[^\\{\\}]*\"image_size\"[^\\{\\}]*\\}', text, re.DOTALL)\n\
+          \        for match in matches:\n            try:\n                return\
+          \ json.loads(match)\n            except json.JSONDecodeError:\n        \
+          \        continue\n        return None\n\n    try:\n        # 尝试直接解析\n \
+          \       data = json.loads(arg1)\n        # 如果是 {\"arg1\": \"...json string...\"\
+          } 这种结构，尝试解析内部\n        if isinstance(data, dict) and \"arg1\" in data:\n\
+          \            try:\n                inner = json.loads(data[\"arg1\"])\n\
+          \                if \"prompt\" in inner and \"image_size\" in inner:\n \
+          \                   return inner\n            except json.JSONDecodeError:\n\
+          \                pass\n\n        # 如果直接是包含 prompt/image_size 的 dict\n  \
+          \      if \"prompt\" in data and \"image_size\" in data:\n            return\
+          \ data\n\n    except json.JSONDecodeError:\n        pass\n\n    # 兜底处理：正则提取\n\
+          \    extracted = extract_json_from_string(arg1)\n    if extracted:\n   \
+          \     return extracted\n\n    # 最终失败兜底\n    return {\n        \"error\"\
+          : \"未能提取出 prompt 和 image_size\",\n        \"input_preview\": arg1[:300]\
+          \  # 截取前300字符供调试用\n    }\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          image_size:
+            children: null
+            type: string
+          prompt:
+            children: null
+            type: string
+        retry_config:
+          max_retries: 5
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        title: 代码执行
+        type: code
+        variables:
+        - value_selector:
+          - llm
+          - text
+          variable: arg1
+      height: 79
+      id: '1744201478964'
+      position:
+        x: 688.5282980453743
+        y: -45.5167842182355
+      positionAbsolute:
+        x: 688.5282980453743
+        y: -45.5167842182355
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        authorization:
+          config:
+            api_key: sk-uldsgojwjxadvrvpviwvuscdbniaemhsfpsmqkbypdxxdzvj
+            type: bearer
+          type: api-key
+        body:
+          data:
+          - id: key-value-30
+            key: ''
+            type: text
+            value: '{"model":"black-forest-labs/FLUX.1-schnell","prompt":"{{#1744201478964.prompt#}}","image
+              size":"{{#1744201478964.image_size#}}"}'
+          type: json
+        desc: ''
+        headers: Content-Type:application/json
+        method: POST
+        params: ''
+        retry_config:
+          max_retries: 5
+          retry_enabled: true
+          retry_interval: 100
+        selected: true
+        timeout:
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+        title: HTTP 请求
+        type: http-request
+        url: https://api.siliconflow.cn/v1/images/generations
+        variables: []
+      height: 133
+      id: '1744201614435'
+      position:
+        x: 989.7831740491042
+        y: 74.19665855837962
+      positionAbsolute:
+        x: 989.7831740491042
+        y: 74.19665855837962
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "def main(arg1: str) -> dict:\n    import json\n    data = json.loads(arg1)\n\
+          \    return {\n        'url': data[\"images\"][0][\"url\"]\n    }\n"
+        code_language: python3
+        desc: ''
+        outputs:
+          url:
+            children: null
+            type: string
+        selected: false
+        title: 代码执行 2
+        type: code
+        variables:
+        - value_selector:
+          - '1744201614435'
+          - body
+          variable: arg1
+      height: 54
+      id: '1744201758630'
+      position:
+        x: 1005.5693310273496
+        y: -38.14986950404101
+      positionAbsolute:
+        x: 1005.5693310273496
+        y: -38.14986950404101
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1744228186700'
+          - result
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.8
+          mode: chat
+          name: Pro/OpenGVLab/InternVL2-8B
+          provider: langgenius/siliconflow/siliconflow
+        prompt_template:
+        - id: 7a60efd2-ba5b-4b27-8cc6-76d031030474
+          role: system
+          text: "## 一、角色设定\n你是一位全能时尚顾问机器人，具备以下能力：\n- 精准识别6种穿搭咨询意图\n- 自动选择最优回复策略\n\
+            - 生成结构化专业建议\n- 语言幽默，自然衔接多轮对话\n\n### 要求\n结合知识库，参考用户的基本信息回答用户问题\n**用户问题**：\n\
+            {{#sys.query#}}\n**知识库**：\n{{#context#}}\n**用户基本信息**：\n{{#1744288302681.user_info#}}\n\
+            \n## 二、核心处理逻辑\n \n用户提问 -> 信息是否完整?（身高/体重/年龄/穿搭场合/颜色/风格偏好/季节等）\n信息不完整->场景六：信息收集\n\
+            信息完整 ->按需选用其他场景\n\n## 三、全场景处理模板\n \n### 场景1：整体穿搭分析\n**触发条件**：\n无明确指令  \n\
+            **输出格式**：\n\U0001F3AF 整体风格：{风格}+{关键词}\n\U0001F45A 单品解析：\n{单品1}：{颜色} |\
+            \ {版型} | {材质} → {优点}\n{单品2}：{颜色} | {版型} | {材质} → {优点}\n✨ 亮点：\n• {显瘦/显高技巧}\n\
+            • {色彩搭配亮点}\n⚠️ 注意：\n• {潜在问题}（如：小个子慎选长款）\n\U0001F326️ 适合：{季节} | {场景1}/{场景2}\n\
+            \U0001F4AC 想重点了解哪个单品？\n\n#### 示例：\n**输入**：（上传牛仔外套+碎花裙照片）  \n**输出**：\n\U0001F3AF\
+            \ 整体风格：甜美休闲风+法式慵懒感\n\U0001F45A 单品解析：\n浅蓝牛仔外套：oversize版型 | 做旧处理 → 修饰肩线\n\
+            樱桃碎花裙：雪纺材质 | A字剪裁 → 藏胯显瘦\n✨ 亮点：\n• 牛仔蓝+樱桃红撞色活泼减龄\n• 外套长度刚好修饰臀部\n⚠️ 注意：\n\
+            • 小个子建议搭配踝靴（避免截腿）\n\U0001F326️ 适合：春秋季 | 约会/野餐\n\U0001F4AC 想重点了解外套搭配还是裙子选择？\n\
+            \n### 场景2：单品搭配建议  \n**触发条件**：\n\"怎么搭\"类提问  \n**输出格式**：\n\U0001F4A1 【{单品}的3种玩法】\n\
+            1️⃣ {风格1}风：\n\U0001F455 {搭配1} + \U0001F456 {下装1} → \"关键词\"\n\U0001F48E\
+            \ 精髓：{技巧说明}\n2️⃣ {风格2}风：\n\U0001F457 {搭配2} + \U0001F460 {鞋包2} → \"关键词\"\
+            \n\U0001F31F 小心机：{亮点}\n3️⃣ 彩蛋方案：\n\U0001F3A8 {非常规搭配} → \"适合场景\"\n⚠️ 警告：{注意事项}\n\
+            \U0001F4CC 口诀：{7字口诀}\n \n### 场景3：问题诊断  \n**触发条件**：\n痛点描述  \n**输出格式**：\n\
+            \U0001F50E 【诊断报告：{问题}】\n\U0001FA7A 病因分析：\n• {主要原因1} → {具体说明}\n• {主要原因2}\
+            \ → {对比图例}\n\U0001F48A 速效方案：\n➤ 立即行动：{30秒能改的}\n➤ 急救单品：{推荐1件万能单品}\n\U0001F6E0\
+            ️ 根治建议：\n• 替代方案：{完美替代品}\n• 穿搭公式：{通用解法}\n\U0001F4A1 试试这样说：\"帮我找{具体需求}的替代品\"\
+            \n \n### 场景4：避开雷点 \n**触发条件**：\n用户主动提出禁忌项（如\"不爱穿\"\"不喜欢\"）或系统检测到负面表述  \n\
+            **输出格式**：\n\U0001F6AB 【避雷模式已开启】\n根据您\"{禁忌项}\"的要求，已过滤所有相关推荐\n\U0001F50D\
+            \ 为您精选：\n{替代方案1} → {核心优势}\n（完美避开{禁忌项}，因为{原因}）\n{替代方案2} → {核心优势}\n（采用{技术手段}实现类似效果）\n\
+            {彩蛋方案} → {意外惊喜}\n（同类风格但不同表现形式）\n\U0001F4A1 避雷小贴士：{相关穿搭法则}\n\n**输入输出示例**：\
+            \  \n**示例一**：\n▸ 用户输入：\"我不喜欢穿裙子，求推荐\"  \n▸ 系统回复：\n\U0001F6AB 【避雷模式已开启】\n\
+            根据您\"不穿裙子\"的要求，已过滤所有裙装推荐\n\U0001F50D 为您精选：\n纸袋裤+针织衫 → 优雅不输裙装\n（高腰设计保留女性感，因为用垂感面料替代裙摆）\n\
+            连体裤 → 一件搞定气场\n（采用V领+宽腿设计实现裙装飘逸感）\n西装短裤套装 → 意外优雅\n（中筒袜+乐福鞋打造学院风）\n\U0001F4A1\
+            \ 避雷小贴士：用柔软材质阔腿裤模拟裙装流动感\n**示例二**：\n▸ 用户输入：\"我什么都不想穿！\"  \n▸ 系统回复：\n\U0001F923\
+            \ 检测到叛逆模式启动！\n试试这些「穿得像没穿」的舒适方案：\n1. 空气感棉麻套装 → 0束缚感\n2. 一片式裹身设计 → 3秒出门\n\
+            3. 无痕运动套装 → 第二层肌肤般\n(悄悄说：其实睡衣外穿也很时髦哦~)\n\n### 场景5：单品替换  \n**触发条件**：图片+\"\
+            换\"类请求  \n**输出格式**：\n\U0001F6CD️ 【单品改造计划】\"想换掉{原单品}的哪一点？\"\n1️⃣ 版型问题：{具体问题}\
+            \ → 推荐：{改良款描述}\n\U0001F31F 升级点：{核心改进}\n\U0001F4CF 适合：{身高范围} | {体型}\n2️⃣\
+            \ 风格转换：从{原风格}变为 →\n• {新风格1}：{单品A}+{搭配技巧}\n• {新风格2}：{单品B}+{穿搭口诀}\n\n### 场景6：信息收集\
+            \  \n**触发条件**：关键参数缺失  \n**输出格式**：\n\U0001F4DD 【穿搭小调查】\n为了给您最合适的建议，请告诉我：\n\
+            1️⃣ 最近最常穿的场合是？\n(例如：上班/约会/周末休闲)\n2️⃣ 想要尝试的风格关键词：\n(例如：复古港风/极简性冷淡/美式街头)\n\
+            3️⃣ 偏爱的服装款式特点：\n(例如：oversize/收腰设计/高腰款)\n4️⃣ 最喜欢的3个颜色：\n(例如：奶油白/焦糖棕/牛仔蓝)\n\
+            5️⃣ 绝对拒绝的元素：\n(例如：豹纹/荧光色/超短裙)\n\U0001F4A1 小贴士：按您喜欢的顺序回答即可，回答1-2个即可开始~"
+        selected: false
+        title: LLM 2
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector:
+            - sys
+            - files
+          enabled: true
+      height: 89
+      id: '1744226878020'
+      position:
+        x: 1100.6441478582847
+        y: 243.57828852987302
+      positionAbsolute:
+        x: 1100.6441478582847
+        y: 243.57828852987302
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        classes:
+        - id: '1'
+          name: 图片生成任务
+        - id: '2'
+          name: 图片/文字分析任务
+        desc: ''
+        instruction: "## 角色\n你是一个专业时尚顾问助手，请严格按以下规则处理用户请求：\n\n## 任务要求\n1. 判断用户需求是否涉及图片生成\n\
+          2. 分类标准：\n   - 当出现以下情况时标记为「图片生成任务」：\n     * 明确包含：生成/可视化/效果图/想象/示意图/图片 等关键词\n\
+          \     * 隐含需求：说\"抽象\"/\"看不懂\"/\"有图吗\"/有参考吗”等\n   - 其他情况标记为「图片/文字分析任务」\n"
+        instructions: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          window:
+            enabled: true
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.1
+          mode: chat
+          name: Qwen/Qwen2.5-7B-Instruct
+          provider: langgenius/siliconflow/siliconflow
+        query_variable_selector:
+        - '1744201446106'
+        - sys.query
+        selected: false
+        title: 问题分类器
+        topics: []
+        type: question-classifier
+        vision:
+          enabled: false
+      height: 169
+      id: '1744227163209'
+      position:
+        x: 367.0006130135544
+        y: 123.87626295625377
+      positionAbsolute:
+        x: 367.0006130135544
+        y: 123.87626295625377
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#1744226878020.text#}}'
+        desc: ''
+        selected: false
+        title: 直接回复 2
+        type: answer
+        variables: []
+      height: 104
+      id: '1744227542437'
+      position:
+        x: 1386.6237632015946
+        y: 243.57828852987302
+      positionAbsolute:
+        x: 1386.6237632015946
+        y: 243.57828852987302
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        dataset_ids:
+        - c1dbee90-328e-4db7-a43c-7613111f045c
+        - 549f084b-7ce6-4441-a7dd-155661d912f9
+        desc: ''
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: reranking_model
+          reranking_model:
+            model: netease-youdao/bce-reranker-base_v1
+            provider: langgenius/siliconflow/siliconflow
+          score_threshold: 0.6
+          top_k: 2
+          weights:
+            keyword_setting:
+              keyword_weight: 0.3
+            vector_setting:
+              embedding_model_name: bge-m3:latest
+              embedding_provider_name: langgenius/ollama/ollama
+              vector_weight: 0.7
+        query_variable_selector:
+        - '1744201446106'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: 知识检索
+        type: knowledge-retrieval
+      height: 120
+      id: '1744228186700'
+      position:
+        x: 694.9878843014926
+        y: 358.27171835766774
+      positionAbsolute:
+        x: 694.9878843014926
+        y: 358.27171835766774
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        advanced_settings:
+          group_enabled: true
+          groups:
+          - groupId: 48066aab-4029-4bbe-82e3-0db53e8c50e3
+            group_name: user_info
+            output_type: string
+            variables:
+            - - '1744201446106'
+              - user_sex
+            - - '1744201446106'
+              - age
+            - - '1744201446106'
+              - height
+            - - '1744201446106'
+              - weight
+            - - '1744201446106'
+              - season
+            - - '1744201446106'
+              - body_shape
+            - - '1744201446106'
+              - style
+            - - '1744201446106'
+              - color
+            - - '1744201446106'
+              - material
+        desc: ''
+        output_type: string
+        selected: false
+        title: 变量聚合器
+        type: variable-aggregator
+        variables:
+        - - '1744201446106'
+          - user_sex
+        - - '1744201446106'
+          - age
+        - - '1744201446106'
+          - height
+        - - '1744201446106'
+          - weight
+        - - '1744201446106'
+          - season
+        - []
+      height: 278
+      id: '1744288302681'
+      position:
+        x: 55.263661935010305
+        y: 336.818089666983
+      positionAbsolute:
+        x: 55.263661935010305
+        y: 336.818089666983
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: -167.74993045714177
+      y: 179.42045470843482
+      zoom: 0.5942099464719213
