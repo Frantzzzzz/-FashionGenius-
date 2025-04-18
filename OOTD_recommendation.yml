@@ -1,0 +1,206 @@
+app:
+  description: ''
+  icon: kissing_heart
+  icon_background: '#FEF7C3'
+  mode: advanced-chat
+  name: OOTD_recommendation
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/siliconflow:0.0.8@217f973bd7ced1b099c2f0c669f1356bdf4cc38b8372fd58d7874f9940b95de3
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions: []
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - remote_url
+      - local_file
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 10
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        sourceType: llm
+        targetType: answer
+      id: llm-answer
+      source: llm
+      sourceHandle: source
+      target: answer
+      targetHandle: target
+      type: custom
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: 1744360683600-source-llm-target
+      source: '1744360683600'
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 场合
+          max_length: 48
+          options: []
+          required: true
+          type: text-input
+          variable: occasion
+        - label: 气温
+          max_length: 48
+          options: []
+          required: true
+          type: text-input
+          variable: temperature
+        - label: 天气
+          max_length: 48
+          options: []
+          required: true
+          type: text-input
+          variable: weather_condition
+        - label: 衣橱
+          max_length: 256
+          options: []
+          required: true
+          type: text-input
+          variable: wardrobe_description
+      height: 190
+      id: '1744360683600'
+      position:
+        x: 356.2403324520882
+        y: 282
+      positionAbsolute:
+        x: 356.2403324520882
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        memory:
+          query_prompt_template: '{{#sys.query#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params: {}
+          mode: chat
+          name: Qwen/Qwen2.5-7B-Instruct
+          provider: langgenius/siliconflow/siliconflow
+        prompt_template:
+        - id: d1e9b071-3e0c-46d7-b3ed-1d08488892c2
+          role: system
+          text: "# 角色设定\n你是一位专业时尚搭配师，需要根据用户衣橱中的具体衣物生成搭配建议。\n\n# 输入格式\n用户会提供以下信息：\n\
+            1. 场合：[日常/工作/约会/运动/正式]\n2. 气温：[温度]°C\n3. 天气状况\n4. 衣橱物品清单（每件物品格式）：\n  \
+            \ 第{i}件(id=[id])：[material] [color] [fit] [style] [type] 适用于[season]\n\
+            \n#用户输入\n场合：{{#1744360683600.occasion#}}\n气温：{{#1744360683600.temperature#}}\n\
+            天气状况：{{#1744360683600.weather_condition#}}\n衣橱物品清单：{{#1744360683600.wardrobe_description#}}\n\
+            \n# 搭配原则\n1. **场合适配**：\n   - 工作：选择商务、简约风格\n   - 日常：休闲、舒适为主\n   - 约会：时尚、有品味\n\
+            \   - 运动：功能性优先\n   - 正式：典雅、庄重\n\n2. **天气适配**：\n   - >25°C：选择透气轻薄材质\n \
+            \  - 10-25°C：适中厚度\n   - <10°C：保暖材质\n   - 雨天：建议防水材质\n   - 雪天：推荐保暖防滑\n\n\
+            3. **色彩搭配**：\n   - 使用相邻色或互补色方案\n   - 避免过多鲜艳颜色混搭\n   - 工作场合以中性色为主\n\n#\
+            \ 输出要求\n只能从用户的衣橱中选择服饰进行搭配\n如果不需要配饰，就写“配饰: 无”\n\"穿搭小心机\"和\"建议\"禁止出现服饰id\n\
+            \n# 输出格式\n请严格按以下格式返回：\n---\n推荐搭配:\n上装: id=[id] [type] [color] [material]\
+            \ [fit]\n下装: id=[id] [type] [color] [material] [fit]\n鞋子: id=[id] [type]\
+            \ [color] [material]\n配饰: id=[id] [type] [color] [material]\n穿搭小心机: \n\
+            [用活泼口语说明为什么这么搭]\n[温度适配小贴士]\n[场合契合度分析]\n建议: \n[如何用现有衣物变换更多搭配]\n---\n\n\
+            # 示例输入\n场合：工作\n天气：晴 18°C\n衣橱物品：\n第1件：棉质 浅蓝色 修身 休闲 圆领短袖 适用于[\"春季\",\"夏季\"\
+            ]\n第2件：羊毛 深灰色 直筒 商务 西裤 适用于[\"秋季\",\"冬季\"]\n\n# 示例输出\n---\n推荐搭配:\n\n上装:\
+            \ id=1713340430000 圆领短袖 浅蓝色 棉质 修身\n下装: id=889203230000 西裤 深灰色 羊毛 直筒\n\
+            鞋子: id=1101082300031 鞋 棕色 皮质\n配饰: 无\n穿搭小心机: 这套简直是打工人理想模板！浅蓝+深灰的配色像蓝天配水泥墙，都市感满满~棉质衬衫吸汗不粘身，羊毛裤垂感一流！把乐福鞋后跟踩下秒变休闲模式，下班约会都不用换装！\n\
+            建议: 这件浅蓝色短袖搭配卡其色休闲裤就是另一种学院风，或者外搭白色防晒衣增加层次感~\n---"
+        selected: true
+        title: LLM
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector: []
+          enabled: false
+      height: 102
+      id: llm
+      position:
+        x: 714.3076773093022
+        y: 282
+      positionAbsolute:
+        x: 714.3076773093022
+        y: 282
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#llm.text#}}'
+        desc: ''
+        selected: false
+        title: 直接回复
+        type: answer
+        variables: []
+      height: 114
+      id: answer
+      position:
+        x: 1012.8648358806848
+        y: 282
+      positionAbsolute:
+        x: 1012.8648358806848
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 199.78211056062878
+      y: 267.70129613806984
+      zoom: 0.9054773686633434
