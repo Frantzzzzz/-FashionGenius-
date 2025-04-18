@@ -47,13 +47,30 @@
 - OutfitAnyone – 阿里云发布的条件扩散模型，实现零镜头虚拟试穿
 
 ## 🚀 Quick Start
+
+- 关于Dify
+  
+  1. 本地部署Dify或在线使用 https://dify.ai
+  2. 导入 "代码/dify_flows" 中的所有yaml文件（DSL文件）
+     
+     <img width="226" alt="image" src="https://github.com/user-attachments/assets/a3240c43-eb62-48f0-8cbb-c5ee164bc0c6" />
+     
+  4. 生成每个 chatflow 的API_key
+     
+     <img width="210" alt="image" src="https://github.com/user-attachments/assets/8c339ba4-c0b3-4115-8c32-3ee2541d2590" />
+  
+  5. 修改代码中所有"Bearer:"后面的密钥为你自己的API_key
+     
+
+- Clone & install
 ```
-# 1. Clone & install
 git clone https://github.com/Frantzzzzz/FashionGenius.git
 cd 代码
 pip install -r requirements.txt
+```
 
-# 2. Set environment keys
+- Set environment keys
+```
 cd ai试衣间
 rm .env
 echo "API_KEY=your-api-key" > .env   # 填写你的阿里云API_KEY
@@ -63,8 +80,9 @@ cd 智能衣橱（+定位&天气api)
 rm .env
 echo "BAIDU_MAP_AK=your-api-key" > .env   # 填写你的百度地图API_KEY
 echo "DEFAULT_IP=220.181.38.148" >> .env   # 默认用公网ip获取天气信息
-
-# 3. Run development server
+```
+- Run development server
+```
 cd ..
 
 # 3.1 智能衣橱
