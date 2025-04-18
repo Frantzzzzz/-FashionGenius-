@@ -72,12 +72,10 @@ pip install -r requirements.txt
 - Set environment keys
 ```
 cd ai试衣间
-rm .env
 echo "API_KEY=your-api-key" > .env   # 填写你的阿里云API_KEY
 
 cd ..
 cd 智能衣橱（+定位&天气api)
-rm .env
 echo "BAIDU_MAP_AK=your-api-key" > .env   # 填写你的百度地图API_KEY
 echo "DEFAULT_IP=220.181.38.148" >> .env   # 默认用公网ip获取天气信息
 ```
